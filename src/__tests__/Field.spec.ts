@@ -29,6 +29,27 @@ describe("Field", () => {
     t.equal(field.errors.length, 0);
   });
 
+  it("should validate asynchronously", () => {
+    const validator = (value: any) => {
+      return new Promise(res => {
+        setTimeout(() => {
+          return res(value !== "hello" ? ["nope"] : []);
+        }, 10);
+      });
+    };
+
+    const field = new Field("foo", {
+      validator,
+    });
+
+    return field.setValue("nope")
+      .then(() => {
+        t.equal(field.valid, false);
+        t.equal(field.errors.length, 1);
+        t.equal(field.initial, false);
+      });
+  });
+
   it("should set value", () => {
     const field = new Field("foo");
     field.setValue("hey");

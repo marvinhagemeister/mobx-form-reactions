@@ -33,10 +33,10 @@ export default class Field {
     return true;
   }
 
-  @action setValue(value: any) {
+  @action setValue(value: any): Promise<boolean> {
     this.initial = false;
     this.value = value;
-    this.startValidation(value);
+    return this.startValidation(value);
   }
 
   @action hydrate(value: any) {
@@ -45,21 +45,23 @@ export default class Field {
     this.startValidation(value);
   }
 
-  private startValidation(value: any) {
+  private startValidation(value: any): Promise<boolean> {
     if (typeof this.validator === "undefined") {
-      return;
+      return Promise.resolve(true);
     }
 
     const result = this.validator(value);
     if (Array.isArray(result)) {
       this.errors = result;
       this.validating = false;
+      return Promise.resolve(this.errors.length === 0);
     } else if (typeof result.then === "function") {
       this.validating = true;
       return result
         .then(res => {
           this.validating = false;
           this.errors = res;
+          return this.errors.length === 0;
         });
     }
   }
