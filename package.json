@@ -1,0 +1,60 @@
+{
+  "name": "mobx-forms",
+  "version": "0.0.1",
+  "description": "typescript boilerplate project",
+  "main": "lib/index.js",
+  "author": "Marvin Hagemeister <marvin@marvinhagemeister.de>",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf dist/ lib/",
+    "lint": "tslint 'src/**/*.ts'",
+    "watch": "tsc -w",
+    "build": "npm run clean && tsc",
+    "test": "mocha --compilers ts:ts-node/register 'src/**/__tests__/*.spec.ts'",
+    "test-watch": "npm t -- -w -R min",
+    "coverage": "nyc npm t",
+    "prepublish": "npm run lint && npm t && npm run build",
+    "precommit": "./scripts/pre-commit.sh"
+  },
+  "dependencies": {
+    "mobx": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/mocha": "^2.2.36",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "nyc": "^10.0.0",
+    "rimraf": "^2.5.4",
+    "ts-node": "^2.0.0",
+    "tslint": "^4.3.1",
+    "typescript": "^2.1.4"
+  },
+  "nyc": {
+    "include": [
+      "src/*.ts",
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "typings",
+      "node_modules/",
+      "**/__tests__/**",
+      "__tests__/**",
+      "**/*.d.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "json",
+      "html",
+      "text",
+      "text-summary",
+      "lcovonly"
+    ],
+    "all": true
+  }
+}
