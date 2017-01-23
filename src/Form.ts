@@ -4,10 +4,8 @@ import Field from "./Field";
 export default class Form {
   fields: Field[] = [];
 
-  constructor(fields?: Field[]) {
-    if (fields) {
-      this.addFields(...fields);
-    }
+  constructor(fields: Field[]) {
+    this.addFields(...fields);
   }
 
   @computed get valid() {

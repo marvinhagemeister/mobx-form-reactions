@@ -55,14 +55,14 @@ export default class Field {
       this.errors = result;
       this.validating = false;
       return Promise.resolve(this.errors.length === 0);
-    } else if (typeof result.then === "function") {
-      this.validating = true;
-      return result
-        .then(res => {
-          this.validating = false;
-          this.errors = res;
-          return this.errors.length === 0;
-        });
     }
+
+    this.validating = true;
+    return result
+      .then(res => {
+        this.validating = false;
+        this.errors = res;
+        return this.errors.length === 0;
+      });
   }
 }
