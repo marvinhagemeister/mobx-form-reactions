@@ -1,3 +1,13 @@
-# TypeScript Starter
+# MobX form reactions
 
-Slim Boilerplate for TypeScript based projects.
+tbd
+
+## Usage
+
+```bash
+# npm
+npm install mobx-form-reactions
+
+# yarn
+yarn add mobx-form-reactions
+```

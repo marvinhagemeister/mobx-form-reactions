@@ -1,7 +1,7 @@
 {
-  "name": "mobx-forms",
+  "name": "mobx-form-reactions",
   "version": "0.0.1",
-  "description": "typescript boilerplate project",
+  "description": "MobX form state classes",
   "main": "lib/index.js",
   "author": "Marvin Hagemeister <marvin@marvinhagemeister.de>",
   "license": "MIT",
