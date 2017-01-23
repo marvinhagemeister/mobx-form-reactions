@@ -6,6 +6,10 @@
   "typings": "index.d.ts",
   "author": "Marvin Hagemeister <marvin@marvinhagemeister.de>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:marvinhagemeister/mobx-form-reactions.git"
+  },
   "scripts": {
     "clean": "rimraf dist/ lib/",
     "lint": "tslint 'src/**/*.ts'",
