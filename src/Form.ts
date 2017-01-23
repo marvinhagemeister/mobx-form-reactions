@@ -8,6 +8,10 @@ export default class Form {
     this.addFields(...fields);
   }
 
+  getField(name: string) {
+    return this.fields.find(field => field.name === name);
+  }
+
   @computed get valid() {
     return this.fields
       .every(field => field.valid);

@@ -29,4 +29,13 @@ describe("Form", () => {
 
     t.equal(form.fields.length > 0, true);
   });
+
+  it("should getField by name", () => {
+    const fa = new Field("foo");
+    const fb = new Field("bar");
+    const form = new Form([fa, fb]);
+
+    t.equal(form.getField("foo").name, "foo");
+    t.equal(form.getField("foo") === fa, true);
+  });
 });
