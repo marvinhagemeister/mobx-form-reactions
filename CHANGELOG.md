@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
+- upgrade TypeScript version
+
 ## 2.0.0
 
 - fields are now stored as an `Object` instead of an `Array` for easier retrieval
