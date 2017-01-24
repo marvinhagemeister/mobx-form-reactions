@@ -17,8 +17,7 @@ export default class Field {
   @observable value: any;
 
   constructor(name: string, options?: FieldOptions) {
-    this.name = name;
-    Object.assign(this, options);
+    this.init(name, options);
   }
 
   @computed get valid() {
@@ -33,6 +32,11 @@ export default class Field {
     return true;
   }
 
+  @action init(name: string, options: FieldOptions) {
+    this.name = name;
+    Object.assign(this, options);
+  }
+
   @action setValue(value: any): Promise<boolean> {
     this.initial = false;
     this.value = value;
@@ -45,7 +49,8 @@ export default class Field {
     this.startValidation(value);
   }
 
-  private startValidation(value: any): Promise<boolean> {
+  // Must be an action because of strict mode
+  @action startValidation(value: any): Promise<boolean> {
     if (typeof this.validator === "undefined") {
       return Promise.resolve(true);
     }
@@ -60,9 +65,14 @@ export default class Field {
     this.validating = true;
     return result
       .then(res => {
-        this.validating = false;
-        this.errors = res;
+        this.stopValidation(res);
         return this.errors.length === 0;
       });
+  }
+
+  // Cannot work inside startValidation function because of strict mode.
+  @action stopValidation(errors: string[]) {
+    this.validating = false;
+    this.errors = errors;
   }
 }

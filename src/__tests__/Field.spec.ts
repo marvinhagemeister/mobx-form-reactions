@@ -1,5 +1,8 @@
 import { assert as t } from "chai";
+import { useStrict } from "mobx";
 import Field from "../Field";
+
+useStrict(true);
 
 describe("Field", () => {
   it("should set options", () => {
