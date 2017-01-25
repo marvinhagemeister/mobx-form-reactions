@@ -1,12 +1,7 @@
 import { action, computed, observable } from "mobx";
+import { FieldBase, FieldOptions } from "./shapes";
 
-export interface FieldOptions {
-  required?: boolean;
-  disabled?: boolean;
-  validator?: (value: any) => string[] | Promise<string[]>;
-}
-
-export default class Field {
+export default class Field implements FieldBase {
   name: string;
   validator: (value: any) => string[] | Promise<string[]>;
   @observable errors: string[] = [];

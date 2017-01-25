@@ -1,14 +1,12 @@
 import { action, computed, observable } from "mobx";
 import Field from "./Field";
+import { FieldBase, FieldCache } from "./shapes";
 
-export interface FieldCache {
-  [key: string]: Field;
-}
-
-export default class Form {
+export default class Form implements FieldBase {
+  name: "";
   @observable fields: FieldCache;
 
-  constructor(fields?: Field[]) {
+  constructor(fields?: FieldBase[]) {
     this.init();
 
     if (fields) {
@@ -31,7 +29,7 @@ export default class Form {
     return true;
   }
 
-  @action addFields(...fields: Field[]) {
+  @action addFields(...fields: FieldBase[]) {
     for (const field of fields) {
       this.fields[field.name] = field;
     }
