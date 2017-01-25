@@ -14,7 +14,7 @@
     "clean": "rimraf dist/ lib/",
     "lint": "tslint 'src/**/*.ts'",
     "watch": "tsc -w",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsc && babel lib/ --out-dir lib/",
     "test": "mocha --compilers ts:ts-node/register 'src/**/__tests__/*.spec.ts'",
     "test-watch": "npm t -- -w -R min",
     "coverage": "nyc npm t",
@@ -27,6 +27,7 @@
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.36",
+    "babel-preset-es2015": "^6.22.0",
     "chai": "^3.5.0",
     "mocha": "^3.2.0",
     "nyc": "^10.0.0",
