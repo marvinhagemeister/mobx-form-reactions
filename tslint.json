@@ -8,6 +8,9 @@
     "interface-name": [
       false
     ],
-    "no-string-literal": false
+    "no-string-literal": false,
+    "ordered-imports": [
+      false
+    ]
   }
 }
