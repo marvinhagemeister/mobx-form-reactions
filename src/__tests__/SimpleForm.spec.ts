@@ -1,7 +1,7 @@
 import { assert as t } from "chai";
 import { action, observable, useStrict } from "mobx";
 import Field from "../Field";
-import Form from "../Form";
+import FormGroup from "../FormGroup";
 import SimpleForm from "../SimpleForm";
 
 useStrict(true);
@@ -97,7 +97,7 @@ describe("SimpleForm", () => {
 
     const c = new Field("name");
     const d = new Field("surname");
-    const nested = new Form([c, d]);
+    const nested = new FormGroup([c, d]);
     form.addFields(nested);
 
     model.nested[0].setName("yo");
