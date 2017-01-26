@@ -109,23 +109,26 @@ containing a `string[]`.
 ```ts
 import { combineAsync } from "mobx-form-reactions";
 
-function checkFoo(value: any) {
-  return new Promise((result, reject) => {
-    // Do something slow here
-  });
-}
-
-// or with fetch
 function checkApi(value: any) {
   return fetch("https://example.com/my-json-api")
     .then(res => res.json())
     .then(res => res.errors.length ? res.errors : []);
 }
+```
 
-// Synchronous
+Combine asynchronous validations
+
+```ts
+const validate = combineAsync(checkFoo, checkApi);
+
+validate("hello world")
+  .then(res => console.log(res));
+```
+
+They can even be combined with synchronous validation.
+
+```ts
 const status = res => res.status !== 200 ? ["failed"] : [];
-
-// Can also be combined with synchronous validations
 const validate = combineAsync(checkFoo, checkApi, status);
 
 validate("hello world")
