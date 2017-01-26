@@ -12,3 +12,5 @@ export interface FieldOptions {
   disabled?: boolean;
   validator?: (value: any) => string[] | Promise<string[]>;
 }
+
+export type Validator = (value: any) => string[] | Promise<string[]>;
