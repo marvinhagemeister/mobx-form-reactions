@@ -1,11 +1,14 @@
-import { action, observe } from "mobx";
+import { action, observe, isObservableArray, isObservableMap } from "mobx";
 import Field from "./Field";
 import Form from "./Form";
 
 export default class SimpleForm extends Form {
+  model: Object;
+
   constructor(model: Object, fields?: Field[]) {
     super(fields);
 
+    this.model = model;
     this.observeModel(model);
   }
 
@@ -13,9 +16,6 @@ export default class SimpleForm extends Form {
     observe(model, (change: any) => {
       const key = change.name;
       const next = change.object[change.name];
-
-      console.log("change", change);
-
       const field = this.fields[key];
 
       if (field) {
@@ -26,5 +26,23 @@ export default class SimpleForm extends Form {
         }
       }
     });
+  }
+
+  @action commit() {
+    const keys = Object.keys(this.fields);
+    for (const key of keys) {
+      if (this.fields[key] instanceof Field) {
+        const value = (this.fields[key] as Field).value;
+
+        const destination = (this.model as any)[key];
+        if (isObservableArray(destination)) {
+          // destination.replace(value);
+        } else if (isObservableMap(destination)) {
+
+        } else {
+          (this.model as any)[key] = value;
+        }
+      }
+    }
   }
 }

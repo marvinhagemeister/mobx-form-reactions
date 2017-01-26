@@ -69,7 +69,26 @@ describe("SimpleForm", () => {
     t.equal(Object.keys(form.fields).length, 1);
   });
 
-  it.only("should support nested forms", () => {
+  it("should commit state to model", () => {
+    const model = new Model();
+    const field = new Field("foo");
+    const form = new SimpleForm(model, [field]);
+
+    t.equal(model.foo, "");
+    field.setValue("hello");
+    form.commit();
+
+    t.equal(model.foo, "hello");
+
+    field.setValue("nope");
+    t.equal(model.foo, "hello");
+  });
+
+  it.skip("should commit nested state to model", () => {
+
+  });
+
+  it.skip("should support nested forms", () => {
     const model = new Model();
 
     const fa = new Field("foo");
@@ -82,6 +101,7 @@ describe("SimpleForm", () => {
     form.addFields(nested);
 
     model.nested[0].setName("yo");
-    console.log("hey");
+
+    t.equal(c.value, "yo");
   });
 });
