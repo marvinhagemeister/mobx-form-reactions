@@ -1,7 +1,12 @@
 # MobX form reactions
 
-`mobx-form-reactions` is a model-based form library for mobx. It works great
-in combination with [React](https://github.com/facebook/react/) or [Angular 2](https://angular.io/).
+`mobx-form-reactions` is a model-based form library for mobx. It was written for complex form needs
+which weren't satisfied with existing libraries (nested fields, fields depending upon each other,...).
+It works great in combination with SPA-Frameworks like [React](https://github.com/facebook/react/) or
+[Angular 2](https://angular.io/).
+
+The basic idea is that form state should be derived from a model. Form state is more similar to display
+state and should only be synched to the model when the form is submitted.
 
 ## Installation
 
@@ -15,7 +20,48 @@ yarn add mobx-form-reactions
 
 ## Usage
 
-### Select & Dropdown components
+Simple usage without synching with models.
+
+```ts
+import { Form } from "mobx-form-reactions";
+
+const name = new Field("name", { required: true });
+const note = new Field("note");
+const form = new Form([name, note]);
+
+note.value = "my user input";
+
+// Form is still marked as invalid, because name isn't set
+console.log(form.valid); // false
+console.log(name.valid); // false
+
+name.value = "John Doe";
+console.log(form.valid); // true
+```
+
+In most cases you have a model which you need to submit the local changes to.
+For that case we have `SimpleForm` as a useful abstraction which covers 90% of form use cases:
+
+```ts
+import { observable } from "mobx";
+import { SimpleForm } from "mobx-form-reactions";
+
+class Person {
+  @observable name: string = "";
+  @observable surname: string = "";
+}
+
+class PersonForm extends SimpleForm {
+
+}
+
+// Somewhere in your app
+const person = new Person();
+const form = new PersonForm(person);
+
+
+
+```
 
 ### Connecting validations to form fields
 
@@ -41,18 +87,11 @@ const validate = value => value !== "hello" ? ["Value must be 'hello'"] : [];
 If you need multiple error messages it is as easy as filling returned array:
 
 ```ts
-function validate(value: string) {
-  const errors = [];
-  if (value[0] !== "A") {
-    errors.push("Value must start with 'A'");
-  }
+import { combine } from "mobx-form-reactions";
+const startsWithA = value => value[0] !== "A" ? ["Must start with 'A'"] : [];
+const containsNumber = value => !/\d/.test(value) ? ["Must contain a number"] : [];
 
-  if (!/\d/.test(value)) {
-    errors.push("Value must contain a number");
-  }
-
-  return errors;
-}
+const validate = combine(startsWithA, containsNumber);
 
 console.log(validate("hello world"));
 // Logs:
@@ -68,18 +107,29 @@ Asynchronous validators work similar to synchronous one except that they return 
 containing a `string[]`.
 
 ```ts
-function validate(value: any) {
+import { combineAsync } from "mobx-form-reactions";
+
+function checkFoo(value: any) {
   return new Promise((result, reject) => {
     // Do something slow here
   });
 }
 
 // or with fetch
-function validateExternal(value: any) {
+function checkApi(value: any) {
   return fetch("https://example.com/my-json-api")
     .then(res => res.json())
     .then(res => res.errors.length ? res.errors : []);
 }
+
+// Synchronous
+const status = res => res.status !== 200 ? ["failed"] : [];
+
+// Can also be combined with synchronous validations
+const validate = combineAsync(checkFoo, checkApi, status);
+
+validate("hello world")
+  .then(res => console.log(res));
 ```
 
 ### FieldArrays (aka nested forms)

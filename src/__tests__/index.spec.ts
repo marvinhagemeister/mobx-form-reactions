@@ -3,6 +3,6 @@ import * as index from "../index";
 
 describe("index", () => {
   it("should export public api", () => {
-    t.equal(Object.keys(index).length, 3);
+    t.equal(Object.keys(index).length, 5);
   });
 });
