@@ -2,7 +2,7 @@ import { action, computed, observable } from "mobx";
 import Field from "./Field";
 import { FieldBase, FieldCache } from "./shapes";
 
-export default class Form implements FieldBase {
+export default class FormGroup implements FieldBase {
   name: "";
   @observable fields: FieldCache;
 

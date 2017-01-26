@@ -1,8 +1,8 @@
 import { action, observe, isObservableArray, isObservableMap } from "mobx";
 import Field from "./Field";
-import Form from "./Form";
+import FormGroup from "./FormGroup";
 
-export default class SimpleForm extends Form {
+export default class SimpleForm extends FormGroup {
   model: Object;
 
   constructor(model: Object, fields?: Field[]) {
@@ -21,7 +21,7 @@ export default class SimpleForm extends Form {
       if (field) {
         if (field instanceof Field) {
           (field as Field).setValue(next);
-        } else if (field instanceof Form) {
+        } else if (field instanceof FormGroup) {
           this.observeModel(field);
         }
       }
