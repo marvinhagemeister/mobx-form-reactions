@@ -17,9 +17,70 @@ yarn add mobx-form-reactions
 
 ### Select & Dropdown components
 
+### Connecting validations to form fields
+
+tbd
+
 ### Custom Validations
 
+Validations are simple functions which can be pure or have side-effects (think of having to verify the value against a
+backend source). This makes them a no brainer to test, compose and reuse across different `Fields`.
+
+Function signature:
+
+```ts
+type Validator = (value: any) => string[] | Promise<string[]>;
+```
+
+Simple synchronous validation:
+
+```ts
+const validate = value => value !== "hello" ? ["Value must be 'hello'"] : [];
+```
+
+If you need multiple error messages it is as easy as filling returned array:
+
+```ts
+function validate(value: string) {
+  const errors = [];
+  if (value[0] !== "A") {
+    errors.push("Value must start with 'A'");
+  }
+
+  if (!/\d/.test(value)) {
+    errors.push("Value must contain a number");
+  }
+
+  return errors;
+}
+
+console.log(validate("hello world"));
+// Logs:
+// [
+//   "Value must start with 'A'",
+//   "Value must contain a number"
+// ]
+```
+
 ### Asynchronous Validation
+
+Asynchronous validators work similar to synchronous one except that they return a `Promise`
+containing a `string[]`.
+
+```ts
+function validate(value: any) {
+  return new Promise((result, reject) => {
+    // Do something slow here
+  });
+}
+
+// or with fetch
+function validateExternal(value: any) {
+  return fetch("https://example.com/my-json-api")
+    .then(res => res.json())
+    .then(res => res.errors.length ? res.errors : []);
+}
+```
 
 ### FieldArrays (aka nested forms)
 
