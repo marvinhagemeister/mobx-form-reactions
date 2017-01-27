@@ -3,75 +3,75 @@ import { maxLength, minLength, pattern, range, required } from "../validations";
 
 describe("required", () => {
   it("should fail if value is empty", () => {
-    t.equal(required(""), false);
-    t.equal(required(null), false);
-    t.equal(required(undefined), false);
-    t.equal(required([]), false);
-    t.equal(required({}), false);
+    t.deepEqual(required(""), { required: true });
+    t.deepEqual(required(null), { required: true });
+    t.deepEqual(required(undefined), { required: true });
+    t.deepEqual(required([]), { required: true });
+    t.deepEqual(required({}), { required: true });
   });
 
   it("should succeed if value is present", () => {
-    t.equal(required("a"), true);
-    t.equal(required([1]), true);
-    t.equal(required({ foo: 1 }), true);
+    t.deepEqual(required("a"), null);
+    t.deepEqual(required([1]), null);
+    t.deepEqual(required({ foo: 1 }), null);
   });
 });
 
 describe("minLength", () => {
   it("should fail if value is < min", () => {
-    t.equal(minLength(2)(""), false);
-    t.equal(minLength(2)("a"), false);
-    t.equal(minLength(2)(null), false);
-    t.equal(minLength(2)(undefined), false);
-    t.equal(minLength(2)([1]), false);
+    t.deepEqual(minLength(2)(""), { minLength: true });
+    t.deepEqual(minLength(2)("a"), { minLength: true });
+    t.deepEqual(minLength(2)(null), { minLength: true });
+    t.deepEqual(minLength(2)(undefined), { minLength: true });
+    t.deepEqual(minLength(2)([1]), { minLength: true });
   });
 
   it("should succeed if value is >= min", () => {
-    t.equal(minLength(2)("aa"), true);
-    t.equal(minLength(2)("aaa"), true);
-    t.equal(minLength(2)([1, 3, 4]), true);
+    t.equal(minLength(2)("aa"), null);
+    t.equal(minLength(2)("aaa"), null);
+    t.equal(minLength(2)([1, 3, 4]), null);
   });
 });
 
-describe("minLength", () => {
+describe("maxLength", () => {
   it("should fail if value is > max", () => {
-    t.equal(maxLength(2)("aaa"), false);
-    t.equal(maxLength(2)("aaaaa"), false);
-    t.equal(maxLength(2)(null), false);
-    t.equal(maxLength(2)(undefined), false);
-    t.equal(maxLength(2)([1, 2, 3]), false);
+    t.deepEqual(maxLength(2)("aaa"), { maxLength: true });
+    t.deepEqual(maxLength(2)("aaaaa"), { maxLength: true });
+    t.deepEqual(maxLength(2)(null), { maxLength: true });
+    t.deepEqual(maxLength(2)(undefined), { maxLength: true });
+    t.deepEqual(maxLength(2)([1, 2, 3]), { maxLength: true });
   });
 
   it("should succeed if value is <= max", () => {
-    t.equal(maxLength(2)("aa"), true);
-    t.equal(maxLength(2)("a"), true);
-    t.equal(maxLength(2)([4]), true);
+    t.equal(maxLength(2)("aa"), null);
+    t.equal(maxLength(2)("a"), null);
+    t.equal(maxLength(2)([4]), null);
   });
 });
 
 describe("pattern", () => {
   it("should fail if value is > max", () => {
-    t.equal(pattern(/foo/g)("aaa"), false);
-    t.equal(pattern(/foo/g)(null), false);
-    t.equal(pattern(/foo/g)(undefined), false);
-    t.equal(pattern(/foo/g)([1, 2, 3]), false);
+    t.deepEqual(pattern(/foo/g)("aaa"), { pattern: true });
+    t.deepEqual(pattern(/foo/g)(null), { pattern: true });
+    t.deepEqual(pattern(/foo/g)(undefined), { pattern: true });
+    t.deepEqual(pattern(/foo/g)([1, 2, 3]), { pattern: true });
   });
 
   it("should succeed if value is <= max", () => {
-    t.equal(pattern(/foo/g)("foo"), true);
+    t.equal(pattern(/foo/g)("foo"), null);
   });
 });
 
 describe("range", () => {
   it("should fail if value is > max", () => {
-    t.equal(range(1, 4)("aaa"), false);
-    t.equal(range(1, 4)(null), false);
-    t.equal(range(1, 4)(undefined), false);
-    t.equal(range(1, 4)([1, 2, 3]), false);
+    t.deepEqual(range(1, 4)("aaa"), { range: true });
+    t.deepEqual(range(1, 4)(null), { range: true });
+    t.deepEqual(range(1, 4)(undefined), { range: true });
+    t.deepEqual(range(1, 4)([1, 2, 3]), { range: true });
   });
 
   it("should succeed if value is <= max", () => {
-    t.equal(range(1, 4)(2), true);
-    t.equal(range(1, 4)(3), true);
+    t.equal(range(1, 4)(2), null);
+    t.equal(range(1, 4)(3), null);
   });
 });
