@@ -76,7 +76,7 @@ describe("SimpleForm", () => {
 
     t.equal(model.foo, "");
     field.setValue("hello");
-    form.commit();
+    form.submit();
 
     t.equal(model.foo, "hello");
 
