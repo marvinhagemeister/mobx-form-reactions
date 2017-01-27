@@ -23,11 +23,11 @@ yarn add mobx-form-reactions
 Simple usage without synching with models.
 
 ```ts
-import { Form } from "mobx-form-reactions";
+import { Field, FormGroup, required } from "mobx-form-reactions";
 
-const name = new Field("name", { required: true });
+const name = new Field("name", { validator: required });
 const note = new Field("note");
-const form = new Form([name, note]);
+const form = new FormGroup({ name, note });
 
 note.value = "my user input";
 
@@ -39,33 +39,24 @@ name.value = "John Doe";
 console.log(form.valid); // true
 ```
 
-In most cases you have a model which you need to submit the local changes to.
-For that case we have `SimpleForm` as a useful abstraction which covers 90% of form use cases:
-
-```ts
-import { observable } from "mobx";
-import { SimpleForm } from "mobx-form-reactions";
-
-class Person {
-  @observable name: string = "";
-  @observable surname: string = "";
-}
-
-class PersonForm extends SimpleForm {
-
-}
-
-// Somewhere in your app
-const person = new Person();
-const form = new PersonForm(person);
-
-
-
-```
-
 ### Connecting validations to form fields
 
-tbd
+For single `Validators` it is as easy as passing the validator option:
+
+```ts
+import { Field, required } from "mobx-form-reactions";
+
+const field = new Field("foo", { validator: required });
+```
+
+Complex validations can be easily combined into a single `Validator`:
+
+```ts
+import { Field, combineSync, minLength, required } from "mobx-form-reactions";
+
+const validator = combineSync(required, minLength(8));
+const passwordField = new Field("password", { validator });
+```
 
 ### Custom Validations
 
@@ -140,41 +131,12 @@ validate("hello world")
 
 tbd
 
-## Compared to other form libraries
+## Architecture
 
-`mobx-form-reactions` is built on the learnings and experiences of
-previous and current form libraries. The most obvious difference is that
-`mobx-form-reactions` is smaller, allows multiple error messages per
-form field and makes it easier to chain custom validation functions.
+To support complex forms a lot of architectual decisions were made. You can read
+more about the concept of this library here:
 
-Typically other form libraries are inspired by string configs like you may know
-frameworks such as Laravel: `required|otherValidation`.
+- [Template vs Model-based Forms](docs/architecture.md/#template-based-forms-vs-reactivemodel-based-forms)
+- [Why Validators return objects](docs/architecture.md/#why-validators-return-objects)
+- [Compared to other form libraries](docs/architecture.md/#compared-to-other-form-libraries)
 
-This style of configuration is in my opinion against the spirit of JavaScript/TypeScript and makes it hard to support complex validation logic where fields are dependent upon each other.
-
-### [mobx-react-form](https://github.com/foxhound87/mobx-react-form) (previously: mobx-ajv-form)
-
-is a great form library built completely on OOP Design principles. Heck they even built there own devtools which shares a lot of similarity with redux-devtools.
-
-### [mobx-forms](https://github.com/oreqizer/mobx-forms)
-
-Doesn't seem to be maintained anymore. Readme says it's a work in progress.
-
-### [mobx-form](https://github.com/royriojas/mobx-form)
-
-isn't maintained, same as `mobx-forms`.
-
-### [redux-form](https://github.com/erikras/redux-form)
-
-is based on redux and uses HOC-Components as its API. For redux based
-projects this is the way to go.
-
-### [formsy-react](https://github.com/christianalfoni/formsy-react/)
-
-is more closely tied to react components. State is handled internally via
-setState commands. For simple projects this may be great. For large ones I
-believe the seperation between renderering and state is greatly beneficial.
-
-## Further Reading
-
-- redux-form: [Discussion on seperation of model state and form state](https://github.com/erikras/redux-form/issues/529#issuecomment-172653330)
