@@ -1,5 +1,5 @@
 import SimpleForm from "./SimpleForm";
-import { Validator } from "./shapes";
+import { Validator, ValidationError, ValidationResult } from "./shapes";
 import Field from "./Field";
 
 // export function createFormModel<T>(model: T): T & SimpleForm {
@@ -9,13 +9,25 @@ import Field from "./Field";
 //   return new SimpleForm(model, fields);
 // }
 
+const notNull = (x: any) => x !== null;
+
+export const flatten = <K, T>(prev: K, x: T): K & T => {
+  return Object.assign(prev, x);
+};
+
 /** Apply synchronous validations */
-export const combine = <T>(...funcs: Validator[]) => (value: T): string[] => {
-  return [].concat(...funcs.map(f => f(value)));
+export const combine = <T>(...funcs: Array<Validator<T>>) => (value: T): ValidationResult => {
+  return funcs
+    .map(f => f(value))
+    .filter(notNull)
+    .reduce(flatten, {});
 };
 
 /** Apply asynchronous validations */
-export const combineAsync = <T>(...funcs: Validator[]) => (value: T): Promise<string[]> => {
+export const combineAsync = <T>(...funcs: Array<Validator<T>>) => (value: T): Promise<ValidationError> => {
   return Promise.all(funcs.map(f => f(value)))
-    .then(res => [].concat(...res));
+    .then(res => res
+      .filter(notNull)
+      .reduce(flatten, {}),
+    );
 };

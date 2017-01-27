@@ -13,7 +13,9 @@ export interface FieldOptions {
   validator?: (value: any) => string[] | Promise<string[]>;
 }
 
-export type ValidationError = { [error: string]: any } | null;
+export interface ValidationError {
+  [error: string]: any;
+}
 
-/** Returns null on success */
-export type Validator<T> = (value: T) => ValidationError | Promise<ValidationError>;
+export type ValidationResult = ValidationError | null;
+export type Validator<T> = (value: T) => ValidationResult | Promise<ValidationResult>;

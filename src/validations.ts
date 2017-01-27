@@ -1,3 +1,5 @@
+import { ValidationError } from "./shapes";
+
 const isNullOrUndef = (value: any) => typeof value === "undefined" || value === null;
 
 const isRequired = (value: any) =>
@@ -17,17 +19,33 @@ const isRange = (min: number, max: number) => (value: any) =>
   !isNullOrUndef(value) && value >= min && value <= max;
 
 // Validators
-export const required = (value: any) =>
+export const required = (value: any): ValidationError | null =>
   !isRequired(value) ? { required: true } : null;
 
-export const minLength = (min: number) => (value: any) =>
+export interface IMinLength {
+  minLength: boolean;
+}
+
+export const minLength = (min: number) => (value: any): IMinLength | null =>
   !isMinLength(min)(value) ? { minLength: true } : null;
 
-export const maxLength = (max: number) => (value: any) =>
+export interface IMaxLength {
+  maxLength: boolean;
+}
+
+export const maxLength = (max: number) => (value: any): IMaxLength | null =>
   !isMaxLength(max)(value) ? { maxLength: true } : null;
 
-export const pattern = (regex: RegExp) => (value: any) =>
+export interface IPattern {
+  pattern: boolean;
+}
+
+export const pattern = (regex: RegExp) => (value: any): IPattern | null =>
   !isPattern(regex)(value) ? { pattern: true } : null;
 
-export const range = (min: number, max: number) => (value: any) =>
-  !isRange(min, max)(value) ? { range: true } : null;
+export interface IRange {
+  range: boolean;
+}
+
+export const range = (min: number, max: number) => (value: any): IRange | null =>
+  !isRange(min, max)(value) ? { range: true } : null;
