@@ -2,10 +2,10 @@ import { action, observe, isObservableArray, isObservableMap } from "mobx";
 import Field from "./Field";
 import FormGroup from "./FormGroup";
 
-export default class SimpleForm extends FormGroup {
+export default class SimpleForm<T> extends FormGroup<T> {
   model: Object;
 
-  constructor(model: Object, fields?: Field[]) {
+  constructor(model: Object, fields: T) {
     super(fields);
 
     this.model = model;
@@ -16,7 +16,7 @@ export default class SimpleForm extends FormGroup {
     observe(model, (change: any) => {
       const key = change.name;
       const next = change.object[change.name];
-      const field = this.fields[key];
+      const field = (this.fields as any)[key];
 
       if (field) {
         if (field instanceof Field) {
@@ -31,8 +31,8 @@ export default class SimpleForm extends FormGroup {
   @action submit() {
     const keys = Object.keys(this.fields);
     for (const key of keys) {
-      if (this.fields[key] instanceof Field) {
-        const value = (this.fields[key] as Field).value;
+      if ((this.fields as any)[key] instanceof Field) {
+        const value = ((this.fields as any)[key] as Field).value;
 
         const destination = (this.model as any)[key];
         if (isObservableArray(destination)) {
