@@ -33,15 +33,16 @@ describe("Form", () => {
     t.equal(form.valid, false);
   });
 
-  it("should add fields", () => {
-    const fa = new Field("a");
-    const fb = new Field("b");
+  it("should getField by name", () => {
+    const fa = new Field("foo");
+    const fb = new Field("bar");
     const form = new FormGroup({ fa, fb });
 
-    t.equal(Object.keys(form.fields).length > 0, true);
+    t.equal(form.fields.fa.name, "foo");
+    t.equal(form.fields.fa === fa, true);
   });
 
-  it("should getField by name", () => {
+  it("should reset the FormGroup", () => {
     const fa = new Field("foo");
     const fb = new Field("bar");
     const form = new FormGroup({ fa, fb });
