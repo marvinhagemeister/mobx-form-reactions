@@ -80,8 +80,12 @@ run multiple validations on the async response.
 Thus a much better type signature for `Validators` is:
 
 ```ts
-export type ValidationError = { [error: string]: any } | null;
-export type Validator<T> = (value: T) => ValidationError | Promise<ValidationError>;
+export interface ValidationError {
+  [error: string]: any;
+}
+
+export type ValidationResult = ValidationError | null;
+export type Validator<T> = (value: T) => ValidationResult | Promise<ValidationResult>;
 ```
 
 We do return `null` on success, because `null` is cheaper to construct compared
