@@ -1,5 +1,6 @@
 import { assert as t } from "chai";
 import { useStrict } from "mobx";
+import { Validator, ValidationResult } from "../shapes";
 import Field from "../Field";
 
 useStrict(true);
@@ -8,35 +9,33 @@ describe("Field", () => {
   it("should set options", () => {
     const field = new Field("foo", {
       disabled: true,
-      required: true,
     });
 
     t.equal(field.disabled, true);
-    t.equal(field.required, true);
     t.equal(field.name, "foo");
   });
 
   it("should validate synchronously", () => {
     const field = new Field("foo", {
-      validator: value => value === "hello" ? [] : ["nope"],
+      validator: value => value !== "hello" ? { hello: true } : null,
     });
 
     field.setValue("nope");
 
     t.equal(field.valid, false);
-    t.equal(field.errors.length, 1);
-    t.equal(field.errors[0], "nope");
+    t.deepEqual(field.errors, {
+      hello: true,
+    });
 
     field.setValue("hello");
     t.equal(field.valid, true);
-    t.equal(field.errors.length, 0);
   });
 
   it("should validate asynchronously", () => {
-    const validator = (value: any) => {
-      return new Promise(res => {
+    const validator: Validator<any> = (value: string): Promise<ValidationResult> => {
+      return new Promise<ValidationResult>(res => {
         setTimeout(() => {
-          return res(value !== "hello" ? ["nope"] : []);
+          return res(value !== "hello" ? { nope: true } : null);
         }, 10);
       });
     };
@@ -48,7 +47,7 @@ describe("Field", () => {
     return field.setValue("nope")
       .then(() => {
         t.equal(field.valid, false);
-        t.equal(field.errors.length, 1);
+        // t.equal(field.errorCount, 1);
         t.equal(field.initial, false);
       });
   });

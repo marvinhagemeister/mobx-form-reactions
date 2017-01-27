@@ -1,12 +1,11 @@
 import { action, computed, observable } from "mobx";
-import { FieldBase, FieldOptions } from "./shapes";
+import { AbstractFormControl, FieldOptions, Validator, ValidationResult, ValidationError } from "./shapes";
 
-export default class Field implements FieldBase {
+export default class Field implements AbstractFormControl {
   name: string;
-  validator: (value: any) => string[] | Promise<string[]>;
-  @observable errors: string[] = [];
+  validator: Validator<any>;
+  @observable errors: ValidationError = {};
   @observable initial: boolean = true;
-  @observable required: boolean = false;
   @observable disabled: boolean = false;
   @observable validating: boolean = false;
   @observable value: any;
@@ -16,11 +15,11 @@ export default class Field implements FieldBase {
   }
 
   @computed get valid() {
-    if (this.errors.length || this.validating) {
+    if (Object.keys(this.errors).length || this.validating) {
       return false;
     }
 
-    if (!this.initial && this.required && !this.value.length) {
+    if (!this.initial && !this.value.length) {
       return false;
     }
 
@@ -47,27 +46,27 @@ export default class Field implements FieldBase {
   // Must be an action because of strict mode
   @action startValidation(value: any): Promise<boolean> {
     if (typeof this.validator === "undefined") {
+      this.errors = {};
       return Promise.resolve(true);
     }
 
     const result = this.validator(value);
-    if (Array.isArray(result)) {
+    if (result === null) {
+      this.errors = {};
+      return Promise.resolve(true);
+    } else if (typeof (result as any).then !== "function") {
       this.errors = result;
-      this.validating = false;
-      return Promise.resolve(this.errors.length === 0);
+      return Promise.resolve(this.valid);
     }
 
     this.validating = true;
-    return result
-      .then(res => {
-        this.stopValidation(res);
-        return this.errors.length === 0;
-      });
+    return (result as Promise<ValidationResult>).then(this.stopValidation);
   }
 
   // Cannot work inside startValidation function because of strict mode.
-  @action stopValidation(errors: string[]) {
+  @action stopValidation = (errors: ValidationError) => {
     this.validating = false;
     this.errors = errors;
+    return this.valid;
   }
 }
