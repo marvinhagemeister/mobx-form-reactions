@@ -27,7 +27,7 @@ export default class Field implements FieldBase {
     return true;
   }
 
-  @action init(name: string, options: FieldOptions) {
+  @action init(name: string, options?: FieldOptions) {
     this.name = name;
     Object.assign(this, options);
   }
