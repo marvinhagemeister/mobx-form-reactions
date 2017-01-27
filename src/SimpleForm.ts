@@ -28,7 +28,7 @@ export default class SimpleForm extends FormGroup {
     });
   }
 
-  @action commit() {
+  @action submit() {
     const keys = Object.keys(this.fields);
     for (const key of keys) {
       if (this.fields[key] instanceof Field) {
