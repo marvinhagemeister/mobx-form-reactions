@@ -48,7 +48,7 @@ export default class FormGroup<T> implements AbstractFormControl {
   @action reset() {
     const keys = Object.keys(this.fields);
     for (const key of keys) {
-      (this.fields as any)[key].value = null;
+      (this.fields as any)[key].reset();
     }
 
     this.errors = {};

@@ -7,6 +7,7 @@ export interface FieldCache {
 export interface AbstractFormControl {
   valid: boolean;
   name: string;
+  reset(): void;
 }
 
 export interface LocalFormControls {

@@ -1,5 +1,5 @@
 import { assert as t } from "chai";
-import { useStrict } from "mobx";
+import { useStrict, toJS } from "mobx";
 import { Validator, ValidationResult } from "../shapes";
 import Field from "../Field";
 
@@ -66,5 +66,22 @@ describe("Field", () => {
 
     t.equal(field.value, "hey");
     t.equal(field.initial, true);
+  });
+
+  it("should reset a field", () => {
+    const field = new Field("foo");
+    field.setValue("baz");
+
+    t.equal(field.initial, false);
+
+    field.reset();
+    t.deepEqual(toJS(field), {
+      disabled: false,
+      errors: {},
+      initial: true,
+      name: "foo",
+      validating: false,
+      value: null,
+    });
   });
 });
