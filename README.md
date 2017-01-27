@@ -72,39 +72,32 @@ tbd
 Validations are simple functions which can be pure or have side-effects (think of having to verify the value against a
 backend source). This makes them a no brainer to test, compose and reuse across different `Fields`.
 
-Function signature:
-
-```ts
-type Validator = (value: any) => string[] | Promise<string[]>;
-```
-
 Simple synchronous validation:
 
 ```ts
-const validate = value => value !== "hello" ? ["Value must be 'hello'"] : [];
+const isHello = value => value !== "hello" ? { hello: true } : null;
 ```
 
-If you need multiple error messages it is as easy as filling returned array:
+If you need multiple error messages simply add new properties to the errors object:
 
 ```ts
 import { combine } from "mobx-form-reactions";
-const startsWithA = value => value[0] !== "A" ? ["Must start with 'A'"] : [];
-const containsNumber = value => !/\d/.test(value) ? ["Must contain a number"] : [];
+const startsWithA = value => value[0] !== "A" ? { startsWithA: true } : null;
+const containsNumber = value => !/\d/.test(value) ? { containsNumber: true } : null;
 
 const validate = combine(startsWithA, containsNumber);
 
 console.log(validate("hello world"));
 // Logs:
-// [
-//   "Value must start with 'A'",
-//   "Value must contain a number"
-// ]
+// {
+//   startsWithA: true,
+//   containsNumber: true,
+// }
 ```
 
 ### Asynchronous Validation
 
-Asynchronous validators work similar to synchronous one except that they return a `Promise`
-containing a `string[]`.
+Asynchronous validators work similar to synchronous one except that they return a `Promise`.
 
 ```ts
 import { combineAsync } from "mobx-form-reactions";
@@ -112,7 +105,13 @@ import { combineAsync } from "mobx-form-reactions";
 function checkApi(value: any) {
   return fetch("https://example.com/my-json-api")
     .then(res => res.json())
-    .then(res => res.errors.length ? res.errors : []);
+    .then(res => {
+      if (res.status > 300) {
+        return { response: 300 };
+      }
+
+      return null;
+    });
 }
 ```
 
