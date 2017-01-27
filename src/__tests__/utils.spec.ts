@@ -26,18 +26,18 @@ import { combineAsync, combine } from "../utils";
 //   });
 // });
 
-const isABC = (value: string) => value !== "ABC" ? ["is not ABC"] : [];
+const isABC = (value: string) => value !== "ABC" ? { isABC: true } : null;
 const isABCAsync = (value: string) => Promise.resolve(isABC(value));
-const startsWithA = (value: string) => value[0] !== "A" ? ["doesn't start with A"] : [];
+const startsWithA = (value: string) => value[0] !== "A" ? { startsWithA: true } : null;
 const startsWithAAsync = (value: string) => Promise.resolve(startsWithA(value));
 
 describe("combine", () => {
   it("should run synchronous validations", () => {
     const validate = combine(isABC, startsWithA);
-    t.deepEqual(validate("nope"), [
-      "is not ABC",
-      "doesn't start with A",
-    ]);
+    t.deepEqual(validate("nope"), {
+      isABC: true,
+      startsWithA: true,
+    });
   });
 });
 
@@ -46,29 +46,29 @@ describe("combineAsync", () => {
     const validate = combineAsync(isABC, startsWithA);
 
     return validate("nope")
-      .then(res => t.deepEqual(res, [
-        "is not ABC",
-        "doesn't start with A",
-      ]));
+      .then(res => t.deepEqual(res, {
+        isABC: true,
+        startsWithA: true,
+      }));
   });
 
   it("should work with asynchronous validations", () => {
     const validate = combineAsync(isABCAsync, startsWithAAsync);
 
     return validate("nope")
-      .then(res => t.deepEqual(res, [
-        "is not ABC",
-        "doesn't start with A",
-      ]));
+      .then(res => t.deepEqual(res, {
+        isABC: true,
+        startsWithA: true,
+      }));
   });
 
   it("should work with mixed synchronous and asynchronous", () => {
     const validate = combineAsync(isABC, startsWithAAsync);
 
     return validate("nope")
-      .then(res => t.deepEqual(res, [
-        "is not ABC",
-        "doesn't start with A",
-      ]));
+      .then(res => t.deepEqual(res, {
+        isABC: true,
+        startsWithA: true,
+      }));
   });
 });
