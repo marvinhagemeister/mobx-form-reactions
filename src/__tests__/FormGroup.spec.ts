@@ -1,5 +1,5 @@
 import { assert as t } from "chai";
-import { useStrict } from "mobx";
+import { useStrict, toJS } from "mobx";
 import Field from "../Field";
 import FormGroup from "../FormGroup";
 
@@ -43,11 +43,24 @@ describe("Form", () => {
   });
 
   it("should reset the FormGroup", () => {
-    const fa = new Field("foo");
-    const fb = new Field("bar");
-    const form = new FormGroup({ fa, fb });
+    const isHello = (value: string) => value !== "hello"
+      ? { hello: true }
+      : null;
 
-    t.equal(form.fields.fa.name, "foo");
-    t.equal(form.fields.fa === fa, true);
+    const foo = new Field("foo", { validator: isHello });
+    const form = new FormGroup({ foo });
+
+    foo.setValue("nope");
+    t.equal(form.valid, false);
+    t.deepEqual(form.errors, {});
+    t.deepEqual(foo.errors, {
+      hello: true,
+    });
+
+    form.reset();
+
+    t.equal(form.valid, true);
+    t.deepEqual(form.errors, {});
+    t.deepEqual(foo.errors, {});
   });
 });

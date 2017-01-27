@@ -69,4 +69,11 @@ export default class Field implements AbstractFormControl {
     this.errors = errors;
     return this.valid;
   }
+
+  @action reset() {
+    this.initial = true;
+    this.value = null;
+    this.errors = {};
+    this.validating = false;
+  }
 }
