@@ -1,3 +1,5 @@
+import Field from "./Field";
+
 export interface FieldCache {
   [key: string]: AbstractFormControl;
 }
@@ -7,8 +9,16 @@ export interface AbstractFormControl {
   name: string;
 }
 
+export interface LocalFormControls {
+  [name: string]: Field;
+}
+
 export interface FieldOptions {
   disabled?: boolean;
+  validator?: Validator<any>;
+}
+
+export interface FormGroupOptions {
   validator?: Validator<any>;
 }
 

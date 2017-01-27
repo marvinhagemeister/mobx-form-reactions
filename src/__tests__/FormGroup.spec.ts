@@ -9,7 +9,7 @@ describe("Form", () => {
   it("should initialize via constructor", () => {
     const fa = new Field("a");
     const fb = new Field("b");
-    const form = new FormGroup([fa, fb]);
+    const form = new FormGroup({ fa, fb });
 
     t.equal(form.valid, true);
   });
@@ -17,17 +17,15 @@ describe("Form", () => {
   it("should return valid if fields are valid", () => {
     const fa = new Field("a");
     const fb = new Field("b");
-    const form = new FormGroup();
-    form.addFields(fa, fb);
+    const form = new FormGroup({ fa, fb });
 
     t.equal(form.valid, true);
   });
 
   it("should return invalid if one field is invalid", () => {
     const fa = new Field("a");
-    const fb = new Field("b", { required: true });
-    const form = new FormGroup();
-    form.addFields(fa, fb);
+    const fb = new Field("b");
+    const form = new FormGroup({ fa, fb });
 
     fb.setValue("yes");
     fb.setValue("");
@@ -38,8 +36,7 @@ describe("Form", () => {
   it("should add fields", () => {
     const fa = new Field("a");
     const fb = new Field("b");
-    const form = new FormGroup();
-    form.addFields(fa, fb);
+    const form = new FormGroup({ fa, fb });
 
     t.equal(Object.keys(form.fields).length > 0, true);
   });
@@ -47,10 +44,9 @@ describe("Form", () => {
   it("should getField by name", () => {
     const fa = new Field("foo");
     const fb = new Field("bar");
-    const form = new FormGroup();
-    form.addFields(fa, fb);
+    const form = new FormGroup({ fa, fb });
 
-    t.equal(form.fields["foo"].name, "foo");
-    t.equal(form.fields["foo"] === fa, true);
+    t.equal(form.fields.fa.name, "foo");
+    t.equal(form.fields.fa === fa, true);
   });
 });
