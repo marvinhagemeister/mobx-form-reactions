@@ -1,16 +1,15 @@
 export interface FieldCache {
-  [key: string]: FieldBase;
+  [key: string]: AbstractFormControl;
 }
 
-export interface FieldBase {
+export interface AbstractFormControl {
   valid: boolean;
   name: string;
 }
 
 export interface FieldOptions {
-  required?: boolean;
   disabled?: boolean;
-  validator?: (value: any) => string[] | Promise<string[]>;
+  validator?: Validator<any>;
 }
 
 export interface ValidationError {
