@@ -68,6 +68,30 @@ at least 2 items` and for the price field something similar to `Price must be
 at least 10€`. If we had specified the error message inside our validation
 function we would have to either duplicate it or pass a message argument around.
 
-But in our component we only need to know which validation failed. Which message
-is displayed to the user is the task of the specific input component. This
-design choice is taken from the awesome `reactive-forms` module for Angular 2.
+But in our component we only need to know which validation failed. We'll only care
+about the specific error message once we have to display something to our user and
+that can better be handled inside the ui component.
+
+Unfortunately we cannot use the function name as an identifier, because the name
+will be mangled upon minification. We could also return a string, but for validations
+that take longer to process (like async network requests), you'll usually want to
+run multiple validations on the async response.
+
+Thus a much better type signature for `Validators` is:
+
+```ts
+export type ValidationError = { [error: string]: any } | null;
+export type Validator<T> = (value: T) => ValidationError | Promise<ValidationError>;
+```
+
+We do return `null` on success, because `null` is cheaper to construct compared
+to an `Object`.
+
+And a custom `Validator`:
+
+```ts
+const foo = value => value === "foo" ? null : { foo: true };
+```
+
+This design choice is heavily inspired by Angular 2's awesome `reactive-forms`
+module.
