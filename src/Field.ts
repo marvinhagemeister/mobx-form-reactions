@@ -2,16 +2,24 @@ import { action, computed, observable } from "mobx";
 import { AbstractFormControl, FieldOptions, Validator, ValidationResult, ValidationError } from "./shapes";
 
 export default class Field implements AbstractFormControl {
-  name: string;
   validator: Validator<any>;
   @observable errors: ValidationError = {};
   @observable initial: boolean = true;
   @observable disabled: boolean = false;
   @observable validating: boolean = false;
   @observable value: any;
+  @observable defaultValue: any = null;
 
-  constructor(name: string, options?: FieldOptions) {
-    this.init(name, options);
+  constructor(options?: FieldOptions);
+  constructor(defaultValue: string | number | boolean | null, options?: FieldOptions);
+  constructor(defaultValue?: string | number | boolean | null | FieldOptions, options?: FieldOptions) {
+    if (typeof defaultValue !== "string" && typeof defaultValue !== "number"
+      && typeof defaultValue !== "boolean" && defaultValue !== null) {
+      options = defaultValue;
+      defaultValue = null;
+    }
+
+    this.init(defaultValue, options);
   }
 
   @computed get valid() {
@@ -26,8 +34,8 @@ export default class Field implements AbstractFormControl {
     return true;
   }
 
-  @action init(name: string, options?: FieldOptions) {
-    this.name = name;
+  @action init(defaultValue?: string | number | boolean | null, options?: FieldOptions): void {
+    this.defaultValue = defaultValue;
     Object.assign(this, options);
   }
 
@@ -72,7 +80,7 @@ export default class Field implements AbstractFormControl {
 
   @action reset() {
     this.initial = true;
-    this.value = null;
+    this.value = this.defaultValue;
     this.errors = {};
     this.validating = false;
   }

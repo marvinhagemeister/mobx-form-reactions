@@ -25,8 +25,8 @@ Simple usage without synching with models.
 ```ts
 import { Field, FormGroup, required } from "mobx-form-reactions";
 
-const name = new Field("name", { validator: required });
-const note = new Field("note");
+const name = new Field({ validator: required });
+const note = new Field();
 const form = new FormGroup({ name, note });
 
 note.value = "my user input";
@@ -39,6 +39,16 @@ name.value = "John Doe";
 console.log(form.valid); // true
 ```
 
+Fields with a default value:
+
+```ts
+import { Field, FormGroup, required } from "mobx-form-reactions";
+
+const name = new Field("John Doe", { validator: required });
+
+console.log(name.value); // Logs: "John Doe"
+```
+
 ### Connecting validations to form fields
 
 For single `Validators` it is as easy as passing the validator option:
@@ -46,7 +56,7 @@ For single `Validators` it is as easy as passing the validator option:
 ```ts
 import { Field, required } from "mobx-form-reactions";
 
-const field = new Field("foo", { validator: required });
+const field = new Field({ validator: required });
 ```
 
 Complex validations can be easily combined into a single `Validator`:
@@ -55,7 +65,7 @@ Complex validations can be easily combined into a single `Validator`:
 import { Field, combineSync, minLength, required } from "mobx-form-reactions";
 
 const validator = combineSync(required, minLength(8));
-const passwordField = new Field("password", { validator });
+const passwordField = new Field({ validator });
 ```
 
 ### Custom Validations

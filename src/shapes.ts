@@ -5,8 +5,8 @@ export interface FieldCache {
 }
 
 export interface AbstractFormControl {
+  errors: ValidationError;
   valid: boolean;
-  name: string;
   reset(): void;
 }
 

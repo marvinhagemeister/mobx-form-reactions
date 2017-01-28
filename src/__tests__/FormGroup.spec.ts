@@ -7,24 +7,24 @@ useStrict(true);
 
 describe("Form", () => {
   it("should initialize via constructor", () => {
-    const fa = new Field("a");
-    const fb = new Field("b");
+    const fa = new Field();
+    const fb = new Field();
     const form = new FormGroup({ fa, fb });
 
     t.equal(form.valid, true);
   });
 
   it("should return valid if fields are valid", () => {
-    const fa = new Field("a");
-    const fb = new Field("b");
+    const fa = new Field();
+    const fb = new Field();
     const form = new FormGroup({ fa, fb });
 
     t.equal(form.valid, true);
   });
 
   it("should return invalid if one field is invalid", () => {
-    const fa = new Field("a");
-    const fb = new Field("b");
+    const fa = new Field();
+    const fb = new Field();
     const form = new FormGroup({ fa, fb });
 
     fb.setValue("yes");
@@ -34,11 +34,10 @@ describe("Form", () => {
   });
 
   it("should getField by name", () => {
-    const fa = new Field("foo");
-    const fb = new Field("bar");
+    const fa = new Field();
+    const fb = new Field();
     const form = new FormGroup({ fa, fb });
 
-    t.equal(form.fields.fa.name, "foo");
     t.equal(form.fields.fa === fa, true);
   });
 
@@ -47,7 +46,7 @@ describe("Form", () => {
       ? { hello: true }
       : null;
 
-    const foo = new Field("foo", { validator: isHello });
+    const foo = new Field({ validator: isHello });
     const form = new FormGroup({ foo });
 
     foo.setValue("nope");
