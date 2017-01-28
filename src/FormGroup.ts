@@ -10,7 +10,6 @@ import {
 } from "./shapes";
 
 export default class FormGroup<T> implements AbstractFormControl {
-  name: "";
   validator: Validator<any>;
   @observable errors: ValidationError = {};
   @observable fields: T;
