@@ -7,12 +7,15 @@ useStrict(true);
 
 describe("Field", () => {
   it("should set options", () => {
-    const field = new Field("foo", {
-      disabled: true,
-    });
+    const field = new Field();
+    t.equal(field.disabled, false);
 
-    t.equal(field.disabled, true);
-    t.equal(field.name, "foo");
+    const field2 = new Field({ disabled: true });
+    t.equal(field2.disabled, true);
+
+    const field3 = new Field("foo", { disabled: true });
+    t.equal(field3.disabled, true);
+    t.equal(field3.defaultValue, "foo");
   });
 
   it("should validate synchronously", () => {
@@ -76,12 +79,12 @@ describe("Field", () => {
 
     field.reset();
     t.deepEqual(toJS(field), {
+      defaultValue: "foo",
       disabled: false,
       errors: {},
       initial: true,
-      name: "foo",
       validating: false,
-      value: null,
+      value: "foo",
     });
   });
 });
