@@ -39,7 +39,7 @@ class Model {
     this.foo = "";
     this.bar = "";
     this.nested = [
-      new NestedModel()
+      new NestedModel(),
     ];
   }
 
@@ -83,7 +83,7 @@ describe.skip("SimpleForm", () => {
   });
 
   it.skip("should commit nested state to model", () => {
-
+    // TODO:
   });
 
   it.skip("should support nested forms", () => {

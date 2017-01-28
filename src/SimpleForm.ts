@@ -38,7 +38,7 @@ export default class SimpleForm<T> extends FormGroup<T> {
         if (isObservableArray(destination)) {
           // destination.replace(value);
         } else if (isObservableMap(destination)) {
-
+          // TODO
         } else {
           (this.model as any)[key] = value;
         }
