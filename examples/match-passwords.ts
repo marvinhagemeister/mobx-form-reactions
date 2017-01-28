@@ -13,8 +13,8 @@ export const matchPasswords = (fields: PasswordGroup) => {
 
 const options = { validator: matchPasswords };
 const form = new FormGroup({
-  confirmPassword: new Field("password-confirm"),
-  password: new Field("password"),
+  confirmPassword: new Field(),
+  password: new Field(),
 }, options);
 
 export default form;
