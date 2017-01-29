@@ -76,15 +76,15 @@ backend source). This makes them a no brainer to test, compose and reuse across 
 Simple synchronous validation:
 
 ```ts
-const isHello = value => value !== "hello" ? { hello: true } : null;
+const isHello = value => value !== "hello" ? { hello: true } : {};
 ```
 
 If you need multiple error messages simply add new properties to the errors object:
 
 ```ts
 import { combine } from "mobx-form-reactions";
-const startsWithA = value => value[0] !== "A" ? { startsWithA: true } : null;
-const containsNumber = value => !/\d/.test(value) ? { containsNumber: true } : null;
+const startsWithA = value => value[0] !== "A" ? { startsWithA: true } : {};
+const containsNumber = value => !/\d/.test(value) ? { containsNumber: true } : {};
 
 const validate = combine(startsWithA, containsNumber);
 
@@ -108,10 +108,10 @@ function checkApi(value: any) {
     .then(res => res.json())
     .then(res => {
       if (res.status > 300) {
-        return { response: 300 };
+        return { response: res.status };
       }
 
-      return null;
+      return {};
     });
 }
 ```

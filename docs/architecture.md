@@ -84,17 +84,13 @@ export interface ValidationError {
   [error: string]: any;
 }
 
-export type ValidationResult = ValidationError | null;
-export type Validator<T> = (value: T) => ValidationResult | Promise<ValidationResult>;
+export type Validator<T> = (value: T) => ValidationError | Promise<ValidationError>;
 ```
-
-We do return `null` on success, because `null` is cheaper to construct compared
-to an `Object`.
 
 And a custom `Validator`:
 
 ```ts
-const foo = value => value === "foo" ? null : { foo: true };
+const foo = value => value === "foo" ? {} : { foo: true };
 ```
 
 This design choice is heavily inspired by Angular 2's awesome `reactive-forms`
