@@ -49,6 +49,11 @@ const name = new Field("John Doe", { validator: required });
 console.log(name.value); // Logs: "John Doe"
 ```
 
+### Examples
+
+- [Form control dependencies](examples/)
+- [Form validation dependencies](examples/)
+
 ### Connecting validations to form fields
 
 For single `Validators` it is as easy as passing the validator option:
