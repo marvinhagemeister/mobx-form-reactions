@@ -1,5 +1,5 @@
 import { action, computed, observable } from "mobx";
-import { AbstractFormControl, FieldOptions, Validator, ValidationResult, ValidationError } from "./shapes";
+import { AbstractFormControl, FieldOptions, Validator, ValidationError } from "./shapes";
 
 export default class Field implements AbstractFormControl {
   validator: Validator<any>;
@@ -68,7 +68,7 @@ export default class Field implements AbstractFormControl {
     }
 
     this.validating = true;
-    return (result as Promise<ValidationResult>).then(this.stopValidation);
+    return (result as Promise<ValidationError>).then(this.stopValidation);
   }
 
   // Cannot work inside startValidation function because of strict mode.

@@ -27,5 +27,4 @@ export interface ValidationError {
   [error: string]: any;
 }
 
-export type ValidationResult = ValidationError | null;
-export type Validator<T> = (value: T) => ValidationResult | Promise<ValidationResult>;
+export type Validator<T> = (value: T) => ValidationError | Promise<ValidationError>;
