@@ -11,9 +11,9 @@ describe("required", () => {
   });
 
   it("should succeed if value is present", () => {
-    t.deepEqual(required("a"), null);
-    t.deepEqual(required([1]), null);
-    t.deepEqual(required({ foo: 1 }), null);
+    t.deepEqual(required("a"), {});
+    t.deepEqual(required([1]), {});
+    t.deepEqual(required({ foo: 1 }), {});
   });
 });
 
@@ -27,9 +27,9 @@ describe("minLength", () => {
   });
 
   it("should succeed if value is >= min", () => {
-    t.equal(minLength(2)("aa"), null);
-    t.equal(minLength(2)("aaa"), null);
-    t.equal(minLength(2)([1, 3, 4]), null);
+    t.deepEqual(minLength(2)("aa"), {});
+    t.deepEqual(minLength(2)("aaa"), {});
+    t.deepEqual(minLength(2)([1, 3, 4]), {});
   });
 });
 
@@ -43,9 +43,9 @@ describe("maxLength", () => {
   });
 
   it("should succeed if value is <= max", () => {
-    t.equal(maxLength(2)("aa"), null);
-    t.equal(maxLength(2)("a"), null);
-    t.equal(maxLength(2)([4]), null);
+    t.deepEqual(maxLength(2)("aa"), {});
+    t.deepEqual(maxLength(2)("a"), {});
+    t.deepEqual(maxLength(2)([4]), {});
   });
 });
 
@@ -58,7 +58,7 @@ describe("pattern", () => {
   });
 
   it("should succeed if value is <= max", () => {
-    t.equal(pattern(/foo/g)("foo"), null);
+    t.deepEqual(pattern(/foo/g)("foo"), {});
   });
 });
 
@@ -71,7 +71,7 @@ describe("range", () => {
   });
 
   it("should succeed if value is <= max", () => {
-    t.equal(range(1, 4)(2), null);
-    t.equal(range(1, 4)(3), null);
+    t.deepEqual(range(1, 4)(2), {});
+    t.deepEqual(range(1, 4)(3), {});
   });
 });

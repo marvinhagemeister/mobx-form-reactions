@@ -19,33 +19,33 @@ const isRange = (min: number, max: number) => (value: any) =>
   !isNullOrUndef(value) && value >= min && value <= max;
 
 // Validators
-export const required = (value: any): ValidationError | null =>
-  !isRequired(value) ? { required: true } : null;
+export const required = (value: any): ValidationError =>
+  !isRequired(value) ? { required: true } : {};
 
 export interface IMinLength {
-  minLength: boolean;
+  minLength?: boolean;
 }
 
-export const minLength = (min: number) => (value: any): IMinLength | null =>
-  !isMinLength(min)(value) ? { minLength: true } : null;
+export const minLength = (min: number) => (value: any): IMinLength =>
+  !isMinLength(min)(value) ? { minLength: true } : {};
 
 export interface IMaxLength {
-  maxLength: boolean;
+  maxLength?: boolean;
 }
 
-export const maxLength = (max: number) => (value: any): IMaxLength | null =>
-  !isMaxLength(max)(value) ? { maxLength: true } : null;
+export const maxLength = (max: number) => (value: any): IMaxLength =>
+  !isMaxLength(max)(value) ? { maxLength: true } : {};
 
 export interface IPattern {
-  pattern: boolean;
+  pattern?: boolean;
 }
 
-export const pattern = (regex: RegExp) => (value: any): IPattern | null =>
-  !isPattern(regex)(value) ? { pattern: true } : null;
+export const pattern = (regex: RegExp) => (value: any): IPattern =>
+  !isPattern(regex)(value) ? { pattern: true } : {};
 
 export interface IRange {
-  range: boolean;
+  range?: boolean;
 }
 
-export const range = (min: number, max: number) => (value: any): IRange | null =>
-  !isRange(min, max)(value) ? { range: true } : null;
+export const range = (min: number, max: number) => (value: any): IRange =>
+  !isRange(min, max)(value) ? { range: true } : {};
