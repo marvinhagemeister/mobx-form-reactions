@@ -35,7 +35,7 @@ export default class FormGroup<T> implements AbstractFormControl {
 
     if (this.validator) {
       const res = this.validator(this.fields);
-      if (res !== null && Object.keys(res).length) {
+      if (Object.keys(res).length) {
         Object.assign(this.errors, res);
         return false;
       }
