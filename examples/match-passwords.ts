@@ -8,7 +8,7 @@ interface PasswordGroup {
 export const matchPasswords = (fields: PasswordGroup) => {
   return fields.password.value !== fields.confirmPassword.value
     ? { matchPasswords: true }
-    : null;
+    : {};
 };
 
 const options = { validator: matchPasswords };

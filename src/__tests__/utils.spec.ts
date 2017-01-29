@@ -26,14 +26,22 @@ import { combineAsync, combine } from "../utils";
 //   });
 // });
 
-const isABC = (value: string) => value !== "ABC" ? { isABC: true } : null;
-const isABCAsync = (value: string) => Promise.resolve(isABC(value));
-const startsWithA = (value: string) => value[0] !== "A" ? { startsWithA: true } : null;
+interface IIsABC {
+  abc?: boolean;
+}
+
+interface IStartsWithA {
+  startsWithA?: boolean;
+}
+
+const isABC = (value: any) => value !== "ABC" ? { isABC: true } : {};
+const isABCAsync = (value: any) => Promise.resolve(isABC(value));
+const startsWithA = (value: string) => value[0] !== "A" ? { startsWithA: true } : {};
 const startsWithAAsync = (value: string) => Promise.resolve(startsWithA(value));
 
 describe("combine", () => {
   it("should run synchronous validations", () => {
-    const validate = combine(isABC, startsWithA);
+    const validate = combine<IIsABC & IStartsWithA>(isABC, startsWithA);
     t.deepEqual(validate("nope"), {
       isABC: true,
       startsWithA: true,
@@ -43,7 +51,7 @@ describe("combine", () => {
 
 describe("combineAsync", () => {
   it("should work with synchronous validations", () => {
-    const validate = combineAsync(isABC, startsWithA);
+    const validate = combineAsync<IIsABC & IStartsWithA>(isABC, startsWithA);
 
     return validate("nope")
       .then(res => t.deepEqual(res, {
@@ -53,7 +61,7 @@ describe("combineAsync", () => {
   });
 
   it("should work with asynchronous validations", () => {
-    const validate = combineAsync(isABCAsync, startsWithAAsync);
+    const validate = combineAsync<IIsABC & IStartsWithA>(isABCAsync, startsWithAAsync);
 
     return validate("nope")
       .then(res => t.deepEqual(res, {
@@ -63,7 +71,7 @@ describe("combineAsync", () => {
   });
 
   it("should work with mixed synchronous and asynchronous", () => {
-    const validate = combineAsync(isABC, startsWithAAsync);
+    const validate = combineAsync<IIsABC & IStartsWithA>(isABC, startsWithAAsync);
 
     return validate("nope")
       .then(res => t.deepEqual(res, {

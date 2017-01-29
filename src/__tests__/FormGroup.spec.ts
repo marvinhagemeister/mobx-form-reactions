@@ -44,7 +44,7 @@ describe("Form", () => {
   it("should reset the FormGroup", () => {
     const isHello = (value: string) => value !== "hello"
       ? { hello: true }
-      : null;
+      : {};
 
     const foo = new Field({ validator: isHello });
     const form = new FormGroup({ foo });

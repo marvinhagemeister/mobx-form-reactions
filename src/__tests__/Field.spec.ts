@@ -1,6 +1,6 @@
 import { assert as t } from "chai";
 import { useStrict, toJS } from "mobx";
-import { Validator, ValidationResult } from "../shapes";
+import { Validator, ValidationError } from "../shapes";
 import Field from "../Field";
 
 useStrict(true);
@@ -20,7 +20,7 @@ describe("Field", () => {
 
   it("should validate synchronously", () => {
     const field = new Field("foo", {
-      validator: value => value !== "hello" ? { hello: true } : null,
+      validator: value => value !== "hello" ? { hello: true } : {},
     });
 
     field.setValue("nope");
@@ -35,10 +35,10 @@ describe("Field", () => {
   });
 
   it("should validate asynchronously", () => {
-    const validator: Validator<any> = (value: string): Promise<ValidationResult> => {
-      return new Promise<ValidationResult>(res => {
+    const validator: Validator<any> = (value: string): Promise<ValidationError> => {
+      return new Promise<ValidationError>(res => {
         setTimeout(() => {
-          return res(value !== "hello" ? { nope: true } : null);
+          return res(value !== "hello" ? { nope: true } : {});
         }, 10);
       });
     };
@@ -50,7 +50,6 @@ describe("Field", () => {
     return field.setValue("nope")
       .then(() => {
         t.equal(field.valid, false);
-        // t.equal(field.errorCount, 1);
         t.equal(field.initial, false);
       });
   });

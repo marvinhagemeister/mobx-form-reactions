@@ -1,5 +1,5 @@
 import SimpleForm from "./SimpleForm";
-import { Validator, ValidationError, ValidationResult } from "./shapes";
+import { Validator, ValidationError } from "./shapes";
 import Field from "./Field";
 
 // export function createFormModel<T>(model: T): T & SimpleForm {
@@ -9,25 +9,15 @@ import Field from "./Field";
 //   return new SimpleForm(model, fields);
 // }
 
-const notNull = (x: any) => x !== null;
-
-export const flatten = <K, T>(prev: K, x: T): K & T => {
-  return Object.assign(prev, x);
-};
-
 /** Apply synchronous validations */
-export const combine = <T>(...funcs: Array<Validator<T>>) => (value: T): ValidationResult => {
-  return funcs
-    .map(f => f(value))
-    .filter(notNull)
-    .reduce(flatten, {});
+export const combine = <R extends ValidationError>(...funcs: Array<Validator<R>>) => (value: any): Partial<R> => {
+  return funcs.reduce((prev, f) => Object.assign(prev, f(value)), {} as Partial<R>);
 };
 
 /** Apply asynchronous validations */
-export const combineAsync = <T>(...funcs: Array<Validator<T>>) => (value: T): Promise<ValidationError> => {
+export const combineAsync = <R extends ValidationError>(...funcs: Array<Validator<R>>) =>
+ (value: any): Promise<Partial<R>> => {
   return Promise.all(funcs.map(f => f(value)))
-    .then(res => res
-      .filter(notNull)
-      .reduce(flatten, {}),
+    .then(res => res.reduce((prev, x) => Object.assign(prev, x), {} as Partial<R>),
     );
 };
