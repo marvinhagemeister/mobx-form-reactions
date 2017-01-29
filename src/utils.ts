@@ -18,6 +18,5 @@ export const combine = <R extends ValidationError>(...funcs: Array<Validator<R>>
 export const combineAsync = <R extends ValidationError>(...funcs: Array<Validator<R>>) =>
  (value: any): Promise<Partial<R>> => {
   return Promise.all(funcs.map(f => f(value)))
-    .then(res => res.reduce((prev, x) => Object.assign(prev, x), {} as Partial<R>),
-    );
+    .then(res => res.reduce((prev, x) => Object.assign(prev, x), {} as Partial<R>));
 };
