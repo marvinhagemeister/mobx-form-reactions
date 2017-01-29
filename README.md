@@ -62,9 +62,9 @@ const field = new Field({ validator: required });
 Complex validations can be easily combined into a single `Validator`:
 
 ```ts
-import { Field, combineSync, minLength, required } from "mobx-form-reactions";
+import { Field, combine, minLength, required } from "mobx-form-reactions";
 
-const validator = combineSync(required, minLength(8));
+const validator = combine(required, minLength(8));
 const passwordField = new Field({ validator });
 ```
 
