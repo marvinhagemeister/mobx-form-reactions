@@ -9,7 +9,7 @@ The basic idea is that form state should be derived from a model. Form state is 
 state and should only be synched to the model when the form is submitted.
 
 ## Installation
-
+w
 ```bash
 # npm
 npm install mobx-form-reactions
@@ -71,6 +71,27 @@ import { Field, combine, minLength, required } from "mobx-form-reactions";
 
 const validator = combine(required, minLength(8));
 const passwordField = new Field({ validator });
+```
+
+### Submitting
+
+```ts
+import { Field, FormGroup } from "mobx-form-reactions";
+
+const form = new FormGroup({
+  name: new Field("John"),
+  surname: new Field("Doe"),
+});
+
+// Validation returns promise because validation may be async
+form.validate().then(isValid => {
+  if (isValid) {
+    const json = form.submit();
+    // Do somthing with our json
+  } else {
+    // Display error message
+  }
+});
 ```
 
 ### Custom Validations

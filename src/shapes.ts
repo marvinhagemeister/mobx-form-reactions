@@ -9,7 +9,7 @@ export interface AbstractFormControl {
   validating: boolean;
   valid: boolean;
   reset(): void;
-  validate(): Promise<void>;
+  validate(): Promise<boolean>;
 }
 
 export interface LocalFormControls {

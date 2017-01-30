@@ -54,15 +54,15 @@ export default class Field implements AbstractFormControl {
     this._value = value;
   }
 
-  @action.bound validate(): Promise<void> {
+  @action.bound validate(): Promise<boolean> {
     if (typeof this.validator === "undefined") {
-      return Promise.resolve();
+      return Promise.resolve(true);
     }
 
     const result = this.validator(this._value);
     if (typeof (result as any).then !== "function") {
       this.errors = result;
-      return Promise.resolve();
+      return Promise.resolve(this.valid);
     }
 
     this.validating = true;
@@ -70,6 +70,7 @@ export default class Field implements AbstractFormControl {
       .then(action("stop Validation", (res: ValidationError) => {
         this.validating = false;
         this.errors = res;
+        return this.valid;
       }));
   }
 }
