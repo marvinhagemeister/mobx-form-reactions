@@ -9,7 +9,7 @@ The basic idea is that form state should be derived from a model. Form state is 
 state and should only be synched to the model when the form is submitted.
 
 ## Installation
-w
+
 ```bash
 # npm
 npm install mobx-form-reactions
