@@ -1,4 +1,4 @@
-import { action, computed, observable } from "mobx";
+import { action, computed, autorun, observe, observable } from "mobx";
 import Field from "./Field";
 import {
   AbstractFormControl,
@@ -9,39 +9,55 @@ import {
   ValidationError,
 } from "./shapes";
 
-export default class FormGroup<T> implements AbstractFormControl {
+export default class FormGroup<T extends FieldCache> implements AbstractFormControl {
   validator: Validator<any>;
   @observable errors: ValidationError = {};
   @observable fields: T;
+  @observable private _validating: boolean = false;
 
   constructor(fields: T, options?: FormGroupOptions) {
-    this.init(fields, options);
-  }
-
-  @action init(fields: T, options?: FormGroupOptions) {
-    this.fields = fields;
-    if (options) {
-      Object.assign(this, options);
-    }
+    action("init", () => {
+      this.fields = fields;
+      if (options) {
+        Object.assign(this, options);
+      }
+    })();
   }
 
   @computed get valid() {
-    const keys = Object.keys(this.fields);
-    for (const key of keys) {
+    for (const key of this.fieldKeys()) {
       if (!((this.fields as any)[key].valid)) {
         return false;
       }
     }
 
-    if (this.validator) {
-      const res = this.validator(this.fields);
-      if (Object.keys(res).length) {
-        Object.assign(this.errors, res);
-        return false;
-      }
+    if (Object.keys(this.errors).length || this.validating) {
+      return false;
     }
 
     return true;
+  }
+
+  @computed get validating() {
+    if (this._validating) {
+      return true;
+    }
+
+    for (const key of this.fieldKeys()) {
+      if ((this.fields as any)[key].validating) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  fieldKeys() {
+    return Object.keys(this.fields);
+  }
+
+  @action setValidating(value: boolean) {
+    this._validating = value;
   }
 
   @action reset() {
@@ -51,9 +67,25 @@ export default class FormGroup<T> implements AbstractFormControl {
     }
 
     this.errors = {};
+    this._validating = false;
   }
 
-  @action addFields(fields: T) {
-    this.fields = fields;
+  @action.bound validate() {
+    this._validating = true;
+
+    const p = this.fieldKeys().reduce((seq, key) => {
+      const field = (this.fields as any)[key];
+      return seq.then(() => field.validate());
+    }, Promise.resolve());
+
+    if (typeof this.validator === "undefined") {
+      return p;
+    }
+
+    return p.then(() => this.validator(this.fields))
+      .then(action((errors: ValidationError) => {
+        this._validating = false;
+        this.errors = errors;
+      }));
   }
 }

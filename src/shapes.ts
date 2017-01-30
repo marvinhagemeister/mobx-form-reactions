@@ -6,8 +6,10 @@ export interface FieldCache {
 
 export interface AbstractFormControl {
   errors: ValidationError;
+  validating: boolean;
   valid: boolean;
   reset(): void;
+  validate(): Promise<void>;
 }
 
 export interface LocalFormControls {

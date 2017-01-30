@@ -24,6 +24,7 @@ describe("Field", () => {
     });
 
     field.setValue("nope");
+    field.validate();
 
     t.equal(field.valid, false);
     t.deepEqual(field.errors, {
@@ -31,6 +32,7 @@ describe("Field", () => {
     });
 
     field.setValue("hello");
+    field.validate();
     t.equal(field.valid, true);
   });
 
@@ -47,7 +49,8 @@ describe("Field", () => {
       validator,
     });
 
-    return field.setValue("nope")
+    field.setValue("nope");
+    return field.validate()
       .then(() => {
         t.equal(field.valid, false);
         t.equal(field.initial, false);
@@ -62,14 +65,6 @@ describe("Field", () => {
     t.equal(field.initial, false);
   });
 
-  it("should hydrate", () => {
-    const field = new Field("foo");
-    field.hydrate("hey");
-
-    t.equal(field.value, "hey");
-    t.equal(field.initial, true);
-  });
-
   it("should reset a field", () => {
     const field = new Field("foo");
     field.setValue("baz");
@@ -78,12 +73,12 @@ describe("Field", () => {
 
     field.reset();
     t.deepEqual(toJS(field), {
+      _value: null,
       defaultValue: "foo",
       disabled: false,
       errors: {},
       initial: true,
       validating: false,
-      value: "foo",
     });
   });
 });
