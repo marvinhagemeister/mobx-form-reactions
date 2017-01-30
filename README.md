@@ -140,7 +140,32 @@ validate("hello world")
   .then(res => console.log(res));
 ```
 
-### FieldArrays (aka nested forms)
+### FieldArrays (dynamic fields)
+
+When dealing with complex forms you'll usually come across a form where
+the inputs have to be added dynamically. Think of a form where you can
+add an abritary number of persons. The `FieldArray` class is made for
+this exact purpose.
+
+```ts
+import { Field, FormGroup, FieldArray } from "mobx-form-reactions";
+
+const createPerson = () =>
+  new FormGroup({
+    name: new Field("John"),
+    surname: new Field("Doe"),
+  });
+
+const form = new FieldArray();
+
+const onBtnClick = form =>
+  form.push(createPerson());
+
+// Let's pretend that the user clicked on a button labeld "add person"
+onBtnClick(form);
+
+console.log(form.fields.length); // Logs: 2
+```
 
 ### Wizards
 
