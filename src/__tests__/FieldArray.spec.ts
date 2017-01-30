@@ -1,6 +1,7 @@
 import { assert as t } from "chai";
 import { toJS } from "mobx";
 import FieldArray from "../FieldArray";
+import FormGroup from "../FormGroup";
 import Field from "../Field";
 
 const isHello = (value: any) =>
@@ -66,7 +67,22 @@ describe("FieldArray", () => {
       });
   });
 
-  it.skip("should submit values", () => {
-    // TODO
+  it("should submit values", () => {
+    const field = new Field("value1");
+    const group = new FormGroup({
+      foo: new Field("value2"),
+    });
+
+    const form = new FieldArray([
+      field,
+      group,
+    ]);
+
+    t.deepEqual(form.submit(), [
+      "value1",
+      {
+        foo: "value2",
+      },
+    ]);
   });
 });

@@ -2,6 +2,7 @@ import { assert as t } from "chai";
 import { useStrict, toJS } from "mobx";
 import Field from "../Field";
 import FormGroup from "../FormGroup";
+import FieldArray from "../FieldArray";
 
 useStrict(true);
 
@@ -85,7 +86,21 @@ describe("FormGroup", () => {
     });
   });
 
-  it.skip("should submit values", () => {
-    // TODO
+  it("should submit values", () => {
+    const form = new FormGroup({
+      bar: new FormGroup({
+        name: new Field("value2"),
+      }),
+      baz: new FieldArray([new Field("value3")]),
+      foo: new Field("value1"),
+    });
+
+    t.deepEqual(form.submit(), {
+      bar: {
+        name: "value2",
+      },
+      baz: ["value3"],
+      foo: "value1",
+    });
   });
 });
