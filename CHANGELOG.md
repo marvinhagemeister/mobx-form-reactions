@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0
+
+- **Breaking Change**: Remove `SimpleForm`. State should be derived not synced
+- Add `submit` and `validate` method for `FormGroup` and `FieldArray`
+
 ## 2.0.2
 
 - Distribute as `ES5` package instead of `ES6`. Babel breaks on `extends` otherwise.
