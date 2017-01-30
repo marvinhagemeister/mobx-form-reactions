@@ -1,41 +1,111 @@
 declare module "mobx-form-reactions" {
-  export interface FieldOptions {
-    required?: boolean;
-    disabled?: boolean;
-    validator?: (value: any) => string[] | Promise<string[]>;
+  export interface FieldCache {
+    [key: string]: AbstractFormControl;
   }
 
-  export class Field {
-    name: string;
-    validator: (value: any) => string[] | Promise<string[]>;
-    errors: string[];
+  export interface AbstractFormControl {
+    errors: ValidationError;
+    validating: boolean;
+    valid: boolean;
+    reset(): void;
+    validate(): Promise<boolean>;
+  }
+
+  export interface LocalFormControls {
+    [name: string]: Field;
+  }
+
+  export interface FieldOptions {
+    disabled?: boolean;
+    validator?: Validator<any>;
+  }
+
+  export interface FormGroupOptions {
+    validator?: Validator<any>;
+  }
+
+  export interface ValidationError {
+    [error: string]: any;
+  }
+
+  export type Validator<T> = (value: T) => ValidationError | Promise<ValidationError>;
+
+  /** Apply synchronous validations */
+  export const combine: <R extends ValidationError>(...funcs: Validator<R>[]) => (value: any) => Partial<R>;
+  /** Apply asynchronous validations */
+  export const combineAsync: <R extends ValidationError>(...funcs: Validator<R>[]) => (value: any) => Promise<Partial<R>>;
+
+  export class Field implements AbstractFormControl {
+    validator: Validator<any>;
+    errors: ValidationError;
     initial: boolean;
-    required: boolean;
     disabled: boolean;
     validating: boolean;
-    value: any;
-    constructor(name: string, options?: FieldOptions);
+    _value: any;
+    defaultValue: any;
+    constructor(options?: FieldOptions);
+    constructor(defaultValue: string | number | boolean | null, options?: FieldOptions);
     readonly valid: boolean;
-    init(name: string, options: FieldOptions): void;
-    setValue(value: any): Promise<boolean>;
-    hydrate(value: any): void;
-    startValidation(value: any): Promise<boolean>;
-    stopValidation(errors: string[]): void;
+    readonly value: any;
+    reset(): void;
+    setValue(value: any): void;
+    validate(): Promise<boolean>;
   }
 
-  export interface FieldCache {
-    [key: string]: Field;
-  }
-
-  export class Form {
-    fields: Field[];
-    constructor(fields: Field[]);
+  export class FieldArray implements AbstractFormControl {
+    validator: Validator<any>;
+    _validating: boolean;
+    fields: AbstractFormControl[];
+    errors: ValidationError;
+    constructor(fields?: AbstractFormControl[]);
     readonly valid: boolean;
-    init(): void;
-    addFields(...fields: Field[]): void;
+    readonly validating: boolean;
+    validate(): Promise<boolean>;
+    removeAt(index: number): void;
+    insert(index: number, field: AbstractFormControl): void;
+    push(...fields: AbstractFormControl[]): void;
+    reset(): void;
+    submit(): Object;
   }
 
-  export class SimpleForm extends Form {
-    constructor(model: Object, fields?: Field[]);
+  export class FormGroup<T extends FieldCache> implements AbstractFormControl {
+    validator: Validator<any>;
+    errors: ValidationError;
+    fields: T;
+    private _validating;
+    constructor(fields: T, options?: FormGroupOptions);
+    readonly valid: boolean;
+    readonly validating: boolean;
+    fieldKeys(): string[];
+    setValidating(value: boolean): void;
+    reset(): void;
+    validate(): Promise<boolean>;
+    submit(): any;
   }
+
+  export const required: (value: any) => ValidationError;
+
+  export interface IMinLength {
+    minLength?: boolean;
+  }
+
+  export const minLength: (min: number) => (value: any) => IMinLength;
+
+  export interface IMaxLength {
+    maxLength?: boolean;
+  }
+
+  export const maxLength: (max: number) => (value: any) => IMaxLength;
+
+  export interface IPattern {
+    pattern?: boolean;
+  }
+
+  export const pattern: (regex: RegExp) => (value: any) => IPattern;
+
+  export interface IRange {
+    range?: boolean;
+  }
+
+  export const range: (min: number, max: number) => (value: any) => IRange;
 }
