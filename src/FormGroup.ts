@@ -1,5 +1,6 @@
 import { action, computed, autorun, observe, observable } from "mobx";
 import Field from "./Field";
+import FieldArray from "./FieldArray";
 import {
   AbstractFormControl,
   FieldCache,
@@ -87,5 +88,21 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
         this._validating = false;
         this.errors = errors;
       }));
+  }
+
+  @action.bound submit() {
+    return this.fieldKeys().reduce((res, key) => {
+      const item = this.fields[key];
+
+      if (item instanceof Field) {
+        res[key] = (item as Field).value;
+      } else if (item instanceof FieldArray) {
+        res[key] = (item as FieldArray).submit();
+      } else if (item instanceof FormGroup) {
+        res[key] = (item as FormGroup<any>).submit();
+      }
+
+      return res;
+    }, {} as any);
   }
 }
