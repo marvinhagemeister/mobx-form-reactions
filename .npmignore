@@ -1,6 +1,7 @@
 node_modules/
 .nyc_output/
 coverage/
+examples/
 .github/
 scripts/
 src/
@@ -8,5 +9,6 @@ src/
 .npmignore
 .travis.yml
 .gitignore
+.babelrc
 tsconfig.json
 tslint.json
