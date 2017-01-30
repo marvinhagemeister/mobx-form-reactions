@@ -1,13 +1,5 @@
-import SimpleForm from "./SimpleForm";
 import { Validator, ValidationError } from "./shapes";
 import Field from "./Field";
-
-// export function createFormModel<T>(model: T): T & SimpleForm {
-//   const fields = Object.keys(model)
-//     .map(prop => new Field(prop));
-
-//   return new SimpleForm(model, fields);
-// }
 
 /** Apply synchronous validations */
 export const combine = <R extends ValidationError>(...funcs: Array<Validator<R>>) => (value: any): Partial<R> => {
