@@ -71,7 +71,7 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
     this._validating = false;
   }
 
-  @action.bound validate() {
+  @action.bound validate(): Promise<boolean> {
     this._validating = true;
 
     const p = this.fieldKeys().reduce((seq, key) => {
@@ -80,13 +80,14 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
     }, Promise.resolve());
 
     if (typeof this.validator === "undefined") {
-      return p;
+      return p.then(() => this.valid);
     }
 
     return p.then(() => this.validator(this.fields))
       .then(action((errors: ValidationError) => {
         this._validating = false;
         this.errors = errors;
+        return this.valid;
       }));
   }
 
