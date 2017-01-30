@@ -1,27 +1,23 @@
 import { observe } from "mobx";
 import { Field, FormGroup } from "../src";
 
-/* tslint:disable no-shadowed-variable */
-
-const country = new Field("France");
-const city = new Field();
-
 const form = new FormGroup({
-  country, city,
+  city: new Field(),
+  country: new Field("France"),
 });
 
 const setCityByCountry = (country: string) => {
   if (country === "Sweden") {
-    city.setValue("Stockholm");
+    form.fields.city.setValue("Stockholm");
   } else if (country === "France") {
-    city.setValue("Paris");
+    form.fields.city.setValue("Paris");
   }
 };
 
-// Set initially
-setCityByCountry(country.defaultValue);
+// Set initial value
+setCityByCountry(form.fields.country.defaultValue);
 
-observe(country, change => {
+observe(form.fields.country, change => {
   const value = change.object.value;
   setCityByCountry(value);
 });
