@@ -7,7 +7,7 @@ export default class Field implements AbstractFormControl {
   @observable initial: boolean = true;
   @observable disabled: boolean = false;
   @observable validating: boolean = false;
-  @observable value: any;
+  @observable _value: any;
   @observable defaultValue: any = null;
 
   constructor(options?: FieldOptions);
@@ -19,7 +19,10 @@ export default class Field implements AbstractFormControl {
       defaultValue = null;
     }
 
-    this.init(defaultValue, options);
+    action("init", () => {
+      this.defaultValue = defaultValue;
+      Object.assign(this, options);
+    })();
   }
 
   @computed get valid() {
@@ -27,58 +30,46 @@ export default class Field implements AbstractFormControl {
       return false;
     }
 
-    if (!this.initial && !this.value.length) {
-      return false;
-    }
-
     return true;
   }
 
-  @action init(defaultValue?: string | number | boolean | null, options?: FieldOptions): void {
-    this.defaultValue = defaultValue;
-    Object.assign(this, options);
-  }
-
-  @action setValue(value: any): Promise<boolean> {
-    this.initial = false;
-    this.value = value;
-    return this.startValidation(value);
-  }
-
-  @action hydrate(value: any) {
-    this.initial = true;
-    this.value = value;
-    this.startValidation(value);
-  }
-
-  // Must be an action because of strict mode
-  @action startValidation(value: any): Promise<boolean> {
-    if (typeof this.validator === "undefined") {
-      this.errors = {};
-      return Promise.resolve(true);
+  get value() {
+    if ((this._value === null || typeof this._value === "undefined" || !this._value.length)
+      && this.initial && this.defaultValue) {
+      return this.defaultValue;
     }
 
-    const result = this.validator(value);
-    if (typeof (result as any).then !== "function") {
-      this.errors = result;
-      return Promise.resolve(this.valid);
-    }
-
-    this.validating = true;
-    return (result as Promise<ValidationError>).then(this.stopValidation);
-  }
-
-  // Cannot work inside startValidation function because of strict mode.
-  @action stopValidation = (errors: ValidationError) => {
-    this.validating = false;
-    this.errors = errors;
-    return this.valid;
+    return this._value;
   }
 
   @action reset() {
     this.initial = true;
-    this.value = this.defaultValue;
+    this._value = null;
     this.errors = {};
     this.validating = false;
+  }
+
+  @action setValue(value: any) {
+    this.initial = false;
+    this._value = value;
+  }
+
+  @action.bound validate(): Promise<void> {
+    if (typeof this.validator === "undefined") {
+      return Promise.resolve();
+    }
+
+    const result = this.validator(this._value);
+    if (typeof (result as any).then !== "function") {
+      this.errors = result;
+      return Promise.resolve();
+    }
+
+    this.validating = true;
+    return (result as Promise<any>)
+      .then(action("stop Validation", (res: ValidationError) => {
+        this.validating = false;
+        this.errors = res;
+      }));
   }
 }

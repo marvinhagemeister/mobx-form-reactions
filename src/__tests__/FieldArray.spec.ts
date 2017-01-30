@@ -55,11 +55,18 @@ describe("FieldArray", () => {
 
     foo.setValue("nope");
     t.equal(foo.initial, false);
-    t.deepEqual(toJS(foo.errors), { hello: true });
 
-    form.reset();
+    return form.validate()
+      .then(() => {
+        t.deepEqual(toJS(foo.errors), { hello: true });
+        form.reset();
 
-    t.deepEqual(toJS(foo.errors), {});
-    t.equal(foo.initial, true);
+        t.deepEqual(toJS(foo.errors), {});
+        t.equal(foo.initial, true);
+      });
+  });
+
+  it.skip("should submit values", () => {
+    // TODO
   });
 });
