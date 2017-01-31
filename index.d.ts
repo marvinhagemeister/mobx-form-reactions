@@ -108,4 +108,23 @@ declare module "mobx-form-reactions" {
   }
 
   export const range: (min: number, max: number) => (value: any) => IRange;
+
+  export interface IOneOf {
+    oneOf?: boolean;
+  }
+
+  export const oneOf: (haystack: any[]) => (value: any) => IOneOf;
+
+  export interface IIsBoolean {
+    isBoolean?: boolean;
+  }
+
+  export const isBoolean: (value: any) => IIsBoolean;
+
+  export interface IIsNumber {
+    isNumber?: boolean;
+  }
+
+  export const isNumber: (value: any) => IIsNumber;
+  export const isEmpty: (value: any) => boolean;
 }

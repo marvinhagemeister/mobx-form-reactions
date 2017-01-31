@@ -2,9 +2,9 @@ import { ValidationError } from "./shapes";
 
 const isNullOrUndef = (value: any) => typeof value === "undefined" || value === null;
 
-const isRequired = (value: any) =>
+export const isEmpty = (value: any) =>
   value !== "" && !isNullOrUndef(value) &&
-  ((value as any).length > 0 || Object.keys(value).length > 0);
+  Object.keys(value).length > 0;
 
 const isMinLength = (min: number) => (value: any) =>
   !isNullOrUndef(value) && value.length >= min;
@@ -20,7 +20,7 @@ const isRange = (min: number, max: number) => (value: any) =>
 
 // Validators
 export const required = (value: any): ValidationError =>
-  !isRequired(value) ? { required: true } : {};
+  !isEmpty(value) ? { required: true } : {};
 
 export interface IMinLength {
   minLength?: boolean;
@@ -49,3 +49,24 @@ export interface IRange {
 
 export const range = (min: number, max: number) => (value: any): IRange =>
   !isRange(min, max)(value) ? { range: true } : {};
+
+export interface IOneOf {
+  oneOf?: boolean;
+}
+
+export const oneOf = (haystack: any[]) => (value: any): IOneOf =>
+  haystack.indexOf(value) === -1 ? { oneOf: true } : {};
+
+export interface IIsBoolean {
+  isBoolean?: boolean;
+}
+
+export const isBoolean = (value: any): IIsBoolean =>
+  value !== false && value !== true ? { isBoolean: true } : {};
+
+export interface IIsNumber {
+  isNumber?: boolean;
+}
+
+export const isNumber = (value: any): IIsNumber =>
+  typeof value !== "number" ? { isNumber: true } : {};

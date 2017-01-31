@@ -200,4 +200,3 @@ more about the concept of this library here:
 - [Template vs Model-based Forms](docs/architecture.md/#template-based-forms-vs-reactivemodel-based-forms)
 - [Why Validators return objects](docs/architecture.md/#why-validators-return-objects)
 - [Compared to other form libraries](docs/architecture.md/#compared-to-other-form-libraries)
-
