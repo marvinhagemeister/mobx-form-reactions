@@ -1,5 +1,9 @@
 # Changelog
 
+## next
+
+- Fix `defaultValue` not beeing used correctly if it was set to `false`
+
 ## 3.1.0
 
 - Added a few more validation methods that are used in most forms
