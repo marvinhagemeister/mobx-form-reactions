@@ -65,6 +65,11 @@ describe("Field", () => {
     t.equal(field.initial, false);
   });
 
+  it("should get fall back to defaultValue when empty", () => {
+    const field = new Field(false);
+    t.equal(field.value, false);
+  });
+
   it("should reset a field", () => {
     const field = new Field("foo");
     field.setValue("baz");

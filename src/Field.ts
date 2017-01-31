@@ -34,8 +34,9 @@ export default class Field implements AbstractFormControl {
   }
 
   get value() {
-    if ((this._value === null || typeof this._value === "undefined" || !this._value.length)
-      && this.initial && this.defaultValue) {
+    if (this.initial &&
+      (this._value === null || typeof this._value === "undefined" || !this._value.length) &&
+      (this.defaultValue !== null)) {
       return this.defaultValue;
     }
 
