@@ -1,5 +1,14 @@
 import { assert as t } from "chai";
-import { maxLength, minLength, pattern, range, required } from "../validations";
+import {
+  isBoolean,
+  isNumber,
+  maxLength,
+  minLength,
+  oneOf,
+  pattern,
+  range,
+  required,
+} from "../validations";
 
 describe("required", () => {
   it("should fail if value is empty", () => {
@@ -73,5 +82,47 @@ describe("range", () => {
   it("should succeed if value is <= max", () => {
     t.deepEqual(range(1, 4)(2), {});
     t.deepEqual(range(1, 4)(3), {});
+  });
+});
+
+describe("oneOf", () => {
+  it("should fail if value is not in haystack", () => {
+    t.deepEqual(oneOf(["foo", "bar"])("baz"), { oneOf: true });
+    t.deepEqual(oneOf([1, 2])(3), { oneOf: true });
+  });
+
+  it("should succeed if value is in haystack", () => {
+    t.deepEqual(oneOf(["foo", "bar"])("foo"), {});
+    t.deepEqual(oneOf([1, 2])(1), {});
+  });
+});
+
+describe("isBoolean", () => {
+  it("should fail if value is not a boolean", () => {
+    t.deepEqual(isBoolean("nope"), { isBoolean: true });
+    t.deepEqual(isBoolean("false"), { isBoolean: true });
+    t.deepEqual(isBoolean("true"), { isBoolean: true });
+    t.deepEqual(isBoolean(0), { isBoolean: true });
+  });
+
+  it("should succeed if value is a boolean", () => {
+    t.deepEqual(isBoolean(true), {});
+    t.deepEqual(isBoolean(false), {});
+  });
+});
+
+describe("isNumber", () => {
+  it("should fail if value is not a number", () => {
+    t.deepEqual(isNumber("1"), { isNumber: true });
+    t.deepEqual(isNumber("a"), { isNumber: true });
+    t.deepEqual(isNumber(true), { isNumber: true });
+    t.deepEqual(isNumber(null), { isNumber: true });
+  });
+
+  it("should succeed if value is a number", () => {
+    t.deepEqual(isNumber(1), {});
+    t.deepEqual(isNumber(0), {});
+    t.deepEqual(isNumber(-1), {});
+    t.deepEqual(isNumber(1000), {});
   });
 });
