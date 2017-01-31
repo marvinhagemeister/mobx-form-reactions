@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.0
+
+- Added a few more validation methods that are used in most forms
+
 ## 3.0.0
 
 - **Breaking Change**: Remove `SimpleForm`. State should be derived not synced
