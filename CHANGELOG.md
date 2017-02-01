@@ -3,10 +3,16 @@
 ## next
 
 - Fix `defaultValue` not beeing used correctly if it was set to `false`
+- Field `setValue` method changed to `setValue(value, skipValidation)`
+
+Most fields in our use case are validated synchronously and this
+was the expected behaviour for users here.
+
+- all form classes respect the `disabled` status during submition and validation
 
 ## 3.1.0
 
-- Added a few more validation methods that are used in most forms
+- Add a few more validation methods that are used in most forms
 
 ## 3.0.0
 
