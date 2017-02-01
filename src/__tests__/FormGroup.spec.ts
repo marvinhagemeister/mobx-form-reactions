@@ -17,6 +17,14 @@ describe("FormGroup", () => {
     const form = new FormGroup({ fa, fb });
 
     t.equal(form.valid, true);
+
+    const form2 = new FormGroup({}, {
+      disabled: true,
+      validator: (value: any) => ({}),
+    });
+
+    t.equal(form2.disabled, true);
+    t.equal(typeof form2.validator, "function");
   });
 
   it("should return valid if fields are valid", () => {
@@ -102,5 +110,29 @@ describe("FormGroup", () => {
       baz: ["value3"],
       foo: "value1",
     });
+  });
+
+  it("should set disabled", () => {
+    const form = new FormGroup({});
+    t.equal(form.disabled, false);
+    form.setDisabled(true);
+    t.equal(form.disabled, true);
+  });
+
+  it("should not submit disabled fields", () => {
+    const form = new FormGroup({
+      bar: new FieldArray([], { disabled: true }),
+      baz: new FormGroup({}, { disabled: true }),
+      foo: new Field({ disabled: true }),
+    });
+
+    t.deepEqual(form.submit(), {});
+  });
+
+  it("should submit empty object if disabled", () => {
+    const form = new FormGroup({
+      foo: new Field(),
+    }, { disabled: true });
+    t.deepEqual(form.submit(), {});
   });
 });

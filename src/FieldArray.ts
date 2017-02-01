@@ -1,18 +1,25 @@
 import { action, computed, observable } from "mobx";
-import { AbstractFormControl, Validator, ValidationError } from "./shapes";
+import { AbstractFormControl, ControlOptions, Validator, ValidationError } from "./shapes";
 import FormGroup from "./FormGroup";
 import Field from "./Field";
 
 export default class FieldArray implements AbstractFormControl {
   validator: Validator<any>;
+  @observable disabled: boolean = false;
   @observable _validating: boolean = false;
   @observable fields: AbstractFormControl[] = [];
   @observable errors: ValidationError = {};
 
-  constructor(fields?: AbstractFormControl[]) {
+  constructor(fields?: AbstractFormControl[], options?: ControlOptions) {
     if (fields) {
       this.push(...fields);
     }
+
+    action(() => {
+      if (options) {
+        Object.assign(this, options);
+      }
+    })();
   }
 
   @computed get valid() {
@@ -37,6 +44,10 @@ export default class FieldArray implements AbstractFormControl {
     }
 
     return false;
+  }
+
+  @action.bound setDisabled(value: boolean) {
+    this.disabled = value;
   }
 
   @action.bound validate(): Promise<boolean> {
@@ -76,14 +87,20 @@ export default class FieldArray implements AbstractFormControl {
   }
 
   @action submit(): Object {
-    return this.fields.map(item => {
-      if (item instanceof Field) {
-        return (item as Field).value;
-      } else if (item instanceof FieldArray) {
-        return (item as FieldArray).submit();
-      } else if (item instanceof FormGroup) {
-        return (item as FormGroup<any>).submit();
-      }
-    }, []);
+    if (this.disabled) {
+      return [];
+    }
+
+    return this.fields
+      .filter(item => !item.disabled)
+      .map(item => {
+        if (item instanceof Field) {
+          return (item as Field).value;
+        } else if (item instanceof FieldArray) {
+          return (item as FieldArray).submit();
+        } else if (item instanceof FormGroup) {
+          return (item as FormGroup<any>).submit();
+        }
+      }, []);
   }
 }

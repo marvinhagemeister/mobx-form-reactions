@@ -4,7 +4,7 @@ import FieldArray from "./FieldArray";
 import {
   AbstractFormControl,
   FieldCache,
-  FormGroupOptions,
+  ControlOptions,
   LocalFormControls,
   Validator,
   ValidationError,
@@ -12,11 +12,12 @@ import {
 
 export default class FormGroup<T extends FieldCache> implements AbstractFormControl {
   validator: Validator<any>;
+  @observable disabled: boolean = false;
   @observable errors: ValidationError = {};
   @observable fields: T;
   @observable private _validating: boolean = false;
 
-  constructor(fields: T, options?: FormGroupOptions) {
+  constructor(fields: T, options?: ControlOptions) {
     action("init", () => {
       this.fields = fields;
       if (options) {
@@ -61,6 +62,10 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
     this._validating = value;
   }
 
+  @action.bound setDisabled(value: boolean) {
+    this.disabled = value;
+  }
+
   @action reset() {
     const keys = Object.keys(this.fields);
     for (const key of keys) {
@@ -92,8 +97,15 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
   }
 
   @action.bound submit() {
+    if (this.disabled) {
+      return {};
+    }
+
     return this.fieldKeys().reduce((res, key) => {
       const item = this.fields[key];
+      if (item.disabled) {
+        return res;
+      }
 
       if (item instanceof Field) {
         res[key] = (item as Field).value;
