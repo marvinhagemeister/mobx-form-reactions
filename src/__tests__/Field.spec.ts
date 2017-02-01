@@ -5,6 +5,9 @@ import Field from "../Field";
 
 useStrict(true);
 
+const isHello = (value: any) =>
+  value !== "hello" ? { hello: true } : {};
+
 describe("Field", () => {
   it("should set options", () => {
     const field = new Field();
@@ -20,7 +23,7 @@ describe("Field", () => {
 
   it("should validate synchronously", () => {
     const field = new Field("foo", {
-      validator: value => value !== "hello" ? { hello: true } : {},
+      validator: isHello,
     });
 
     field.setValue("nope");
@@ -93,5 +96,17 @@ describe("Field", () => {
 
     field.setDisabled(true);
     t.equal(field.disabled, true);
+  });
+
+  it("should skip validation", () => {
+    const field = new Field("foo", {
+      validator: isHello,
+    });
+
+    field.setValue("hey", true);
+    t.equal(field.valid, true);
+
+    field.setValue("no");
+    t.equal(field.valid, false);
   });
 });

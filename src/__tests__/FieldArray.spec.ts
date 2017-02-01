@@ -106,4 +106,17 @@ describe("FieldArray", () => {
 
     t.deepEqual(form.submit(), []);
   });
+
+  it("should skip fields in validation if disabled", () => {
+    const field = new Field("foo", { validator: isHello });
+    const form = new FieldArray([
+      field,
+      new Field(),
+    ]);
+
+    field.setValue("no");
+    field.setDisabled(true);
+
+    t.deepEqual(form.valid, true);
+  });
 });

@@ -135,4 +135,20 @@ describe("FormGroup", () => {
     }, { disabled: true });
     t.deepEqual(form.submit(), {});
   });
+
+  it("should skip disabled fields in validation", () => {
+    const field = new Field("foo", {
+      disabled: true,
+      validator: isHello,
+    });
+    field.setValue("nope");
+
+    const form = new FormGroup({
+      bar: new FieldArray([field]),
+      baz: new FormGroup({ foo: field }, { disabled: true }),
+      foo: field,
+    });
+
+    t.equal(form.valid, true);
+  });
 });

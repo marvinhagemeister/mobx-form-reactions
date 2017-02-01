@@ -26,7 +26,7 @@ export default class Field implements AbstractFormControl {
   }
 
   @computed get valid() {
-    if (Object.keys(this.errors).length || this.validating) {
+    if (!this.disabled && (Object.keys(this.errors).length || this.validating)) {
       return false;
     }
 
@@ -50,9 +50,13 @@ export default class Field implements AbstractFormControl {
     this.validating = false;
   }
 
-  @action setValue(value: any) {
+  @action setValue(value: any, skipValidation?: boolean) {
     this.initial = false;
     this._value = value;
+
+    if (!skipValidation) {
+      this.validate();
+    }
   }
 
   @action setDisabled(value: boolean) {
