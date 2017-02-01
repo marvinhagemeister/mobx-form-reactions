@@ -86,4 +86,12 @@ describe("Field", () => {
       validating: false,
     });
   });
+
+  it("should set disabled", () => {
+    const field = new Field();
+    t.equal(field.disabled, false);
+
+    field.setDisabled(true);
+    t.equal(field.disabled, true);
+  });
 });

@@ -85,4 +85,25 @@ describe("FieldArray", () => {
       },
     ]);
   });
+
+  it("should submit empty array if disabled", () => {
+    const form = new FieldArray([new Field()]);
+    form.setDisabled(true);
+
+    t.deepEqual(form.submit(), []);
+  });
+
+  it("should check if fields are disabled", () => {
+    const form = new FieldArray([
+      new Field(),
+      new FieldArray([new Field()]),
+      new FormGroup({ foo: new Field() }),
+    ]);
+
+    (form.fields[0] as Field).setDisabled(true);
+    (form.fields[1] as FieldArray).setDisabled(true);
+    (form.fields[2] as FormGroup<any>).setDisabled(true);
+
+    t.deepEqual(form.submit(), []);
+  });
 });

@@ -5,23 +5,21 @@ export interface FieldCache {
 }
 
 export interface AbstractFormControl {
+  disabled: boolean;
   errors: ValidationError;
   validating: boolean;
   valid: boolean;
   reset(): void;
   validate(): Promise<boolean>;
+  setDisabled(value: boolean): void;
 }
 
 export interface LocalFormControls {
   [name: string]: Field;
 }
 
-export interface FieldOptions {
+export interface ControlOptions {
   disabled?: boolean;
-  validator?: Validator<any>;
-}
-
-export interface FormGroupOptions {
   validator?: Validator<any>;
 }
 
