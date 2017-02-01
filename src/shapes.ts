@@ -23,6 +23,10 @@ export interface ControlOptions {
   validator?: Validator<any>;
 }
 
+export interface BooleanFieldOptions {
+  disabled?: boolean;
+}
+
 export interface ValidationError {
   [error: string]: any;
 }
