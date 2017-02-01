@@ -1,6 +1,6 @@
 # Changelog
 
-## next
+## 3.2.0
 
 - Fix `defaultValue` not beeing used correctly if it was set to `false`
 - Field `setValue` method changed to `setValue(value, skipValidation)`

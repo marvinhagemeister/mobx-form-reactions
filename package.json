@@ -1,6 +1,6 @@
 {
   "name": "mobx-form-reactions",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "MobX form state classes",
   "main": "lib/index.js",
   "typings": "index.d.ts",
