@@ -1,6 +1,6 @@
 # Changelog
 
-## next
+## 3.3.0
 
 Add new `BooleanField` field class as a child class of `Field`. Only difference is
 that its default value is `false`, the validator is set to `isBoolean` and
