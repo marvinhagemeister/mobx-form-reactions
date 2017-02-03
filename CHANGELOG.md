@@ -3,6 +3,7 @@
 ## next
 
 - Fix error when only setting `defaultValue` in `BooleanField` constructor
+- Add `setDefaultValue` setter for `Field`
 
 ## 3.3.0
 
