@@ -109,4 +109,12 @@ describe("Field", () => {
     field.setValue("no");
     t.equal(field.valid, false);
   });
+
+  it("should set defaultValue", () => {
+    const field = new Field("foo");
+    t.equal(field.defaultValue, "foo");
+
+    field.setDefaultValue("bar");
+    t.equal(field.defaultValue, "bar");
+  });
 });
