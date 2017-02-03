@@ -13,6 +13,8 @@ export default class BooleanField extends Field {
     } else if (typeof defaultValue !== "boolean") {
       options = defaultValue;
       defaultValue = false;
+    } else if (typeof options === "undefined") {
+      options = {};
     }
 
     (options as ControlOptions).validator = isBoolean;

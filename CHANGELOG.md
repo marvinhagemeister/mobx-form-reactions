@@ -1,5 +1,9 @@
 # Changelog
 
+## next
+
+- Fix error when only setting `defaultValue` in `BooleanField` constructor
+
 ## 3.3.0
 
 Add new `BooleanField` field class as a child class of `Field`. Only difference is
