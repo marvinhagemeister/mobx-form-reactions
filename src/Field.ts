@@ -59,6 +59,10 @@ export default class Field implements AbstractFormControl {
     }
   }
 
+  @action setDefaultValue(value: any) {
+    this.defaultValue = value;
+  }
+
   @action setDisabled(value: boolean) {
     this.disabled = value;
   }
