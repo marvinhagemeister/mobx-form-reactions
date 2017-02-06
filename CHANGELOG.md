@@ -1,5 +1,9 @@
 # Changelog
 
+## next
+
+- Fix missing action decorator in `FieldArray` validation
+
 ## 3.3.1
 
 - Fix error when only setting `defaultValue` in `BooleanField` constructor
