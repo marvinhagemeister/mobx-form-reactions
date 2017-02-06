@@ -57,14 +57,16 @@ export default class FieldArray implements AbstractFormControl {
       return seq.then(() => field.validate());
     }, Promise.resolve(true));
 
-    if (!this.valid || !this.validator) {
+    if (!this.validator) {
       return p.then(() => this.valid);
     }
 
     return p.then(() => this.validator(this.fields))
       .then((result: ValidationError) => {
-        this._validating = false;
-        Object.assign(this.errors, result);
+        action(() => {
+          this._validating = false;
+          Object.assign(this.errors, result);
+        })();
         return this.valid;
       });
   }

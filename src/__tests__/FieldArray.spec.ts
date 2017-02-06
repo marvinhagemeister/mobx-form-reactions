@@ -119,4 +119,18 @@ describe("FieldArray", () => {
 
     t.deepEqual(form.valid, true);
   });
+
+  it("should run validator", () => {
+    const field = new Field("foo", { validator: isHello });
+    const form = new FieldArray([
+      field,
+      new Field(),
+    ], { validator: fields => isHello(fields[0].value) });
+
+    return form.validate()
+      .then(valid => t.equal(valid, false))
+      .then(() => field.setValue("hello"))
+      .then(() => form.validate())
+      .then(valid => t.equal(valid, true));
+  });
 });
