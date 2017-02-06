@@ -1,6 +1,6 @@
 # Changelog
 
-## next
+## 3.3.2
 
 - Fix missing action decorator in `FieldArray` validation
 
@@ -13,7 +13,7 @@
 
 Add new `BooleanField` field class as a child class of `Field`. Only difference is
 that its default value is `false`, the validator is set to `isBoolean` and
-that it has a handy `toggle()` method.
+that it has a handgy `toggle()` method.
 
 ## 3.2.0
 
