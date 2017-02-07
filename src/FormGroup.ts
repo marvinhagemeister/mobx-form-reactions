@@ -58,7 +58,7 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
     return Object.keys(this.fields);
   }
 
-  @action setValidating(value: boolean) {
+  @action.bound setValidating(value: boolean) {
     this._validating = value;
   }
 
@@ -66,7 +66,7 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
     this.disabled = value;
   }
 
-  @action reset() {
+  @action.bound reset() {
     const keys = Object.keys(this.fields);
     for (const key of keys) {
       (this.fields as any)[key].reset();

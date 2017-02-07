@@ -43,14 +43,14 @@ export default class Field implements AbstractFormControl {
     return this._value;
   }
 
-  @action reset() {
+  @action.bound reset() {
     this.initial = true;
     this._value = null;
     this.errors = {};
     this.validating = false;
   }
 
-  @action setValue(value: any, skipValidation?: boolean) {
+  @action.bound setValue(value: any, skipValidation?: boolean) {
     this.initial = false;
     this._value = value;
 
@@ -59,11 +59,11 @@ export default class Field implements AbstractFormControl {
     }
   }
 
-  @action setDefaultValue(value: any) {
+  @action.bound setDefaultValue(value: any) {
     this.defaultValue = value;
   }
 
-  @action setDisabled(value: boolean) {
+  @action.bound setDisabled(value: boolean) {
     this.disabled = value;
   }
 

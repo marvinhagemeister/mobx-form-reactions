@@ -71,24 +71,24 @@ export default class FieldArray implements AbstractFormControl {
       });
   }
 
-  @action removeAt(index: number) {
+  @action.bound removeAt(index: number) {
     this.fields.splice(index, 1);
   }
 
-  @action insert(index: number, field: AbstractFormControl) {
+  @action.bound insert(index: number, field: AbstractFormControl) {
     this.fields.splice(index, 0, field);
   }
 
-  @action push(...fields: AbstractFormControl[]) {
+  @action.bound push(...fields: AbstractFormControl[]) {
     this.fields.push(...fields);
   }
 
-  @action reset() {
+  @action.bound reset() {
     this.fields.forEach(field => field.reset());
     this.errors = {};
   }
 
-  @action submit(): Object {
+  @action.bound submit(): Object {
     if (this.disabled) {
       return [];
     }
