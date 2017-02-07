@@ -1,6 +1,6 @@
 # Changelog
 
-## next
+## 3.3.3
 
 - Bind `this` for all actions
 
