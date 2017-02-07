@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.4.0
+
+Upgrade `mobx` to `3.1.0` which allows modifying non-observed members
+without being wrapped with `action`. This is extremely useful
+for initialization in constructors. Also up the version number
+because the removal of `action` will now throw an error on older
+versions of mobx.
+
 ## 3.3.4
 
 - `required` validation should trim `strings`
