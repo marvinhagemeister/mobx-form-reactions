@@ -18,12 +18,10 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
   @observable private _validating: boolean = false;
 
   constructor(fields: T, options?: ControlOptions) {
-    action("init", () => {
-      this.fields = fields;
-      if (options) {
-        Object.assign(this, options);
-      }
-    })();
+    this.fields = fields;
+    if (options) {
+      Object.assign(this, options);
+    }
   }
 
   @computed get valid() {

@@ -19,10 +19,8 @@ export default class Field implements AbstractFormControl {
       defaultValue = null;
     }
 
-    action("init", () => {
-      this.defaultValue = defaultValue;
-      Object.assign(this, options);
-    })();
+    this.defaultValue = defaultValue;
+    Object.assign(this, options);
   }
 
   @computed get valid() {

@@ -15,11 +15,9 @@ export default class FieldArray implements AbstractFormControl {
       this.push(...fields);
     }
 
-    action(() => {
-      if (options) {
-        Object.assign(this, options);
-      }
-    })();
+    if (options) {
+      Object.assign(this, options);
+    }
   }
 
   @computed get valid() {
