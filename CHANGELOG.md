@@ -1,6 +1,6 @@
 # Changelog
 
-## next
+## 3.3.4
 
 - `required` validation should trim `strings`
 
