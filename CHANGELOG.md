@@ -1,5 +1,9 @@
 # Changelog
 
+## next
+
+- Bind `this` for all actions
+
 ## 3.3.2
 
 - Fix missing action decorator in `FieldArray` validation
