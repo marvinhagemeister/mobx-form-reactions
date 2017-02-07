@@ -2,30 +2,6 @@ import { assert as t } from "chai";
 import { action, computed, observable } from "mobx";
 import { combineAsync, combine } from "../utils";
 
-// describe("createFormModel", () => {
-//   it("should create a view model with observable keys", () => {
-//     class Model {
-//       @observable name: string = null;
-//       @observable surname: string = null;
-
-//       @computed get fullName() {
-//         return this.name + " " + this.surname;
-//       }
-
-//       @action doSomething() {
-//         this.surname = Math.random() + "";
-//       }
-//     }
-
-//     const model = new Model();
-
-//     console.log((Object as any).getOwnPropertyDescriptors(model));
-
-//     console.log(model);
-//     console.log(Object.keys(model));
-//   });
-// });
-
 interface IIsABC {
   abc?: boolean;
 }
