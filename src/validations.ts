@@ -2,9 +2,13 @@ import { ValidationError } from "./shapes";
 
 const isNullOrUndef = (value: any) => typeof value === "undefined" || value === null;
 
-export const isEmpty = (value: any) =>
-  value !== "" && !isNullOrUndef(value) &&
-  Object.keys(value).length > 0;
+export const isEmpty = (value: any) => {
+  if (typeof value === "string" && value.trim().length === 0) {
+    return true;
+  }
+
+  return isNullOrUndef(value) || Object.keys(value).length === 0;
+};
 
 const isMinLength = (min: number) => (value: any) =>
   !isNullOrUndef(value) && value.length >= min;
@@ -20,7 +24,7 @@ const isRange = (min: number, max: number) => (value: any) =>
 
 // Validators
 export const required = (value: any): ValidationError =>
-  !isEmpty(value) ? { required: true } : {};
+  isEmpty(value) ? { required: true } : {};
 
 export interface IMinLength {
   minLength?: boolean;

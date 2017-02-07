@@ -1,5 +1,9 @@
 # Changelog
 
+## next
+
+- `required` validation should trim `strings`
+
 ## 3.3.3
 
 - Bind `this` for all actions
