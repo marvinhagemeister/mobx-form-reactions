@@ -13,6 +13,7 @@ import {
 describe("required", () => {
   it("should fail if value is empty", () => {
     t.deepEqual(required(""), { required: true });
+    t.deepEqual(required("  "), { required: true });
     t.deepEqual(required(null), { required: true });
     t.deepEqual(required(undefined), { required: true });
     t.deepEqual(required([]), { required: true });
