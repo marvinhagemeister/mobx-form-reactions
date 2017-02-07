@@ -22,5 +22,11 @@ describe("Checkbox", () => {
 
     field.toggle();
     t.equal(field.value, true);
+
+    const field2 = new BooleanField(false);
+    t.equal(field2.value, false);
+
+    field2.toggle();
+    t.equal(field2.value, true);
   });
 });
