@@ -1,9 +1,10 @@
 import { action, computed, observable } from "mobx";
 import { AbstractFormControl, ControlOptions, Validator, ValidationError } from "./shapes";
+import BaseControl from "./BaseControl";
 import FormGroup from "./FormGroup";
 import Field from "./Field";
 
-export default class FieldArray implements AbstractFormControl {
+export default class FieldArray extends BaseControl implements AbstractFormControl {
   validator: Validator<any>;
   @observable disabled: boolean = false;
   @observable _validating: boolean = false;
@@ -11,6 +12,8 @@ export default class FieldArray implements AbstractFormControl {
   @observable errors: ValidationError = {};
 
   constructor(fields?: AbstractFormControl[], options?: ControlOptions) {
+    super();
+
     if (fields) {
       this.push(...fields);
     }
@@ -42,10 +45,6 @@ export default class FieldArray implements AbstractFormControl {
     }
 
     return false;
-  }
-
-  @action.bound setDisabled(value: boolean) {
-    this.disabled = value;
   }
 
   @action.bound validate(): Promise<boolean> {

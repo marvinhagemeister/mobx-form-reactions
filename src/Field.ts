@@ -1,18 +1,16 @@
 import { action, computed, observable } from "mobx";
+import BaseControl from "./BaseControl";
 import { AbstractFormControl, ControlOptions, Validator, ValidationError } from "./shapes";
 
-export default class Field implements AbstractFormControl {
+export default class Field extends BaseControl implements AbstractFormControl {
   validator: Validator<any>;
-  @observable errors: ValidationError = {};
-  @observable initial: boolean = true;
-  @observable disabled: boolean = false;
-  @observable validating: boolean = false;
   @observable _value: any;
   @observable defaultValue: any = null;
 
   constructor(options?: ControlOptions);
   constructor(defaultValue: string | number | boolean | null, options?: ControlOptions);
   constructor(defaultValue?: string | number | boolean | null | ControlOptions, options?: ControlOptions) {
+    super();
     if (typeof defaultValue !== "string" && typeof defaultValue !== "number"
       && typeof defaultValue !== "boolean" && defaultValue !== null) {
       options = defaultValue;
@@ -24,7 +22,7 @@ export default class Field implements AbstractFormControl {
   }
 
   @computed get valid() {
-    if (!this.disabled && (Object.keys(this.errors).length || this.validating)) {
+    if (!this.disabled && (Object.keys(this.errors).length || this._validating)) {
       return false;
     }
 
@@ -45,7 +43,7 @@ export default class Field implements AbstractFormControl {
     this.initial = true;
     this._value = null;
     this.errors = {};
-    this.validating = false;
+    this._validating = false;
   }
 
   @action.bound setValue(value: any, skipValidation?: boolean) {
@@ -61,8 +59,8 @@ export default class Field implements AbstractFormControl {
     this.defaultValue = value;
   }
 
-  @action.bound setDisabled(value: boolean) {
-    this.disabled = value;
+  @action.bound setValidating(value: boolean) {
+    this._validating = value;
   }
 
   @action.bound validate(): Promise<boolean> {
@@ -76,10 +74,10 @@ export default class Field implements AbstractFormControl {
       return Promise.resolve(this.valid);
     }
 
-    this.validating = true;
+    this._validating = true;
     return (result as Promise<any>)
       .then(action("stop Validation", (res: ValidationError) => {
-        this.validating = false;
+        this._validating = false;
         this.errors = res;
         return this.valid;
       }));

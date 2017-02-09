@@ -20,11 +20,13 @@ export interface LocalFormControls {
 
 export interface ControlOptions {
   disabled?: boolean;
+  initial?: boolean;
   validator?: Validator<any>;
 }
 
 export interface BooleanFieldOptions {
   disabled?: boolean;
+  initial?: boolean;
 }
 
 export interface ValidationError {

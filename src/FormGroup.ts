@@ -1,6 +1,7 @@
 import { action, computed, autorun, observe, observable } from "mobx";
-import Field from "./Field";
+import BaseControl from "./BaseControl";
 import FieldArray from "./FieldArray";
+import Field from "./Field";
 import {
   AbstractFormControl,
   FieldCache,
@@ -10,14 +11,15 @@ import {
   ValidationError,
 } from "./shapes";
 
-export default class FormGroup<T extends FieldCache> implements AbstractFormControl {
+export default class FormGroup<T extends FieldCache> extends BaseControl implements AbstractFormControl {
   validator: Validator<any>;
   @observable disabled: boolean = false;
   @observable errors: ValidationError = {};
   @observable fields: T;
-  @observable private _validating: boolean = false;
 
   constructor(fields: T, options?: ControlOptions) {
+    super();
+
     this.fields = fields;
     if (options) {
       Object.assign(this, options);
@@ -54,14 +56,6 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
 
   fieldKeys() {
     return Object.keys(this.fields);
-  }
-
-  @action.bound setValidating(value: boolean) {
-    this._validating = value;
-  }
-
-  @action.bound setDisabled(value: boolean) {
-    this.disabled = value;
   }
 
   @action.bound reset() {
