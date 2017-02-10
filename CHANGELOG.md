@@ -2,6 +2,9 @@
 
 ## next
 
+- There could be a case where the `validating` flag wasn't reset properly after validation.
+- Simplify submit code (only internal changes)
+
 ## 3.4.1
 
 - Fix validation bug when only default value is set
