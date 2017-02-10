@@ -21,14 +21,16 @@ export default class BooleanField extends Field {
     super(defaultValue as boolean, options);
   }
 
+  @action.bound setValue(value: boolean) {
+    this.initial = false;
+    this._value = value;
+    this.validate();
+  }
+
   @action.bound toggle() {
     this.initial = false;
     if (this._value === null || typeof this._value === "undefined") {
-      if (typeof this.defaultValue === "boolean") {
         this._value = !this.defaultValue;
-      } else {
-        this._value = true;
-      }
     } else {
       this._value = !this._value;
     }

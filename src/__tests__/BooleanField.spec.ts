@@ -14,6 +14,10 @@ describe("Checkbox", () => {
     const field3 = new BooleanField(true);
     t.equal(field3.defaultValue, true);
     t.equal(field3.disabled, false);
+
+    const field4 = new BooleanField({ disabled: true });
+    t.equal(field4.disabled, true);
+    t.equal(field4.defaultValue, false);
   });
 
   it("should toggle", () => {
@@ -26,6 +30,10 @@ describe("Checkbox", () => {
     const field2 = new BooleanField(false);
     t.equal(field2.value, false);
 
+    field2.toggle();
+    t.equal(field2.value, true);
+
+    field2.setValue(false);
     field2.toggle();
     t.equal(field2.value, true);
   });
