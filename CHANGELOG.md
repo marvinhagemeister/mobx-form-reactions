@@ -2,6 +2,8 @@
 
 ## next
 
+## 3.4.1
+
 - Fix validation bug when only default value is set
 
 ## 3.4.0
