@@ -70,7 +70,7 @@ export default class Field implements AbstractFormControl {
       return Promise.resolve(true);
     }
 
-    const result = this.validator(this._value);
+    const result = this.validator(this.value);
     if (typeof (result as any).then !== "function") {
       this.errors = result;
       return Promise.resolve(this.valid);

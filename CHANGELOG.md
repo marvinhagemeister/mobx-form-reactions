@@ -1,5 +1,9 @@
 # Changelog
 
+## next
+
+- Fix validation bug when only default value is set
+
 ## 3.4.0
 
 Upgrade `mobx` to `3.1.0` which allows modifying non-observed members

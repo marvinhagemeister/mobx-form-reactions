@@ -43,7 +43,7 @@ describe("Field", () => {
     const validator: Validator<any> = (value: string): Promise<ValidationError> => {
       return new Promise<ValidationError>(res => {
         setTimeout(() => {
-          return res(value !== "hello" ? { nope: true } : {});
+          return res(value !== "hello" ? { nope: true  } : {});
         }, 10);
       });
     };
@@ -116,5 +116,13 @@ describe("Field", () => {
 
     field.setDefaultValue("bar");
     t.equal(field.defaultValue, "bar");
+  });
+
+  it("should validate defaultValue", () => {
+    const field = new Field("hello", { validator: isHello });
+    return field.validate()
+      .then(() => {
+        t.equal(field.valid, true);
+      });
   });
 });
