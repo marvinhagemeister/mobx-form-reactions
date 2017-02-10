@@ -31,14 +31,14 @@ export default class FieldArray implements AbstractFormControl {
   }
 
   @computed get validating() {
-    if (this._validating) {
-      return true;
-    }
-
     for (const field of this.fields) {
       if (field.validating) {
         return true;
       }
+    }
+
+    if (this._validating) {
+      return true;
     }
 
     return false;
@@ -51,20 +51,22 @@ export default class FieldArray implements AbstractFormControl {
   @action.bound validate(): Promise<boolean> {
     this._validating = true;
 
-    const p = this.fields.reduce((seq, field) => {
-      return seq.then(() => field.validate());
-    }, Promise.resolve(true));
+    const p = Promise.all(
+      this.fields.map(field => field.validate()),
+    );
 
     if (!this.validator) {
-      return p.then(() => this.valid);
+      return p.then(() => {
+        this._validating = false;
+        this.errors = {};
+        return this.valid;
+      });
     }
 
     return p.then(() => this.validator(this.fields))
       .then((result: ValidationError) => {
-        action(() => {
-          this._validating = false;
-          Object.assign(this.errors, result);
-        })();
+        this._validating = false;
+        Object.assign(this.errors, result);
         return this.valid;
       });
   }
@@ -93,14 +95,6 @@ export default class FieldArray implements AbstractFormControl {
 
     return this.fields
       .filter(item => !item.disabled)
-      .map(item => {
-        if (item instanceof Field) {
-          return (item as Field).value;
-        } else if (item instanceof FieldArray) {
-          return (item as FieldArray).submit();
-        } else if (item instanceof FormGroup) {
-          return (item as FormGroup<any>).submit();
-        }
-      }, []);
+      .map(item => item.submit(), []);
   }
 }

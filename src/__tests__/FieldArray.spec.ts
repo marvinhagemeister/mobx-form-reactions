@@ -1,11 +1,9 @@
 import { assert as t } from "chai";
 import { toJS } from "mobx";
+import { asyncIsHello, isHello } from "./helpers";
 import FieldArray from "../FieldArray";
 import FormGroup from "../FormGroup";
 import Field from "../Field";
-
-const isHello = (value: any) =>
-  value !== "hello" ? { hello: true } : {};
 
 describe("FieldArray", () => {
   it("should add fields via constructor", () => {
@@ -132,5 +130,46 @@ describe("FieldArray", () => {
       .then(() => field.setValue("hello"))
       .then(() => form.validate())
       .then(valid => t.equal(valid, true));
+  });
+
+  it("should set validating flag", () => {
+    const field = new Field("foo", {
+      validator: asyncIsHello,
+    });
+
+    const field2 = new Field("foo", {
+      validator: asyncIsHello,
+    });
+
+    const form = new FieldArray([field, field2]);
+
+    field.setValue("nope", true);
+    field2.setValue("nope", true);
+
+    const p = form.validate();
+    t.equal(form.validating, true);
+    return p.then(() => {
+      t.equal(form.validating, false);
+    });
+  });
+
+  it("should set validating flag if validator is present", () => {
+    const field = new Field("foo", {
+      validator: asyncIsHello,
+    });
+
+    const form = new FieldArray([], {
+      validator: fields => fields.length !== 0 && fields[0].value !== "hello"
+        ? { hello: true }
+        : { },
+    });
+
+    field.setValue("nope", true);
+
+    const p = form.validate();
+    t.equal(form.validating, true);
+    return p.then(() => {
+      t.equal(form.validating, false);
+    });
   });
 });
