@@ -65,23 +65,32 @@ export default class Field implements AbstractFormControl {
     this.disabled = value;
   }
 
+  @action.bound submit(): any {
+    return this.value;
+  }
+
   @action.bound validate(): Promise<boolean> {
+    this.validating = true;
+
     if (typeof this.validator === "undefined") {
+      this.errors = {};
+      this.validating = false;
       return Promise.resolve(true);
     }
 
     const result = this.validator(this.value);
     if (typeof (result as any).then !== "function") {
       this.errors = result;
+      this.validating = false;
       return Promise.resolve(this.valid);
     }
 
     this.validating = true;
     return (result as Promise<any>)
-      .then(action("stop Validation", (res: ValidationError) => {
+      .then((res: ValidationError) => {
         this.validating = false;
         this.errors = res;
         return this.valid;
-      }));
+      });
   }
 }

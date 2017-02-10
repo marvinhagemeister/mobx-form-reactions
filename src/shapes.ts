@@ -12,6 +12,7 @@ export interface AbstractFormControl {
   reset(): void;
   validate(): Promise<boolean>;
   setDisabled(value: boolean): void;
+  submit(): any;
 }
 
 export interface LocalFormControls {

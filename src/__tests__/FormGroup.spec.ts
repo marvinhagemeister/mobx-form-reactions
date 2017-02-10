@@ -1,14 +1,11 @@
 import { assert as t } from "chai";
 import { useStrict, toJS } from "mobx";
+import { asyncIsHello, isHello } from "./helpers";
 import Field from "../Field";
 import FormGroup from "../FormGroup";
 import FieldArray from "../FieldArray";
 
 useStrict(true);
-
-const isHello = (value: string) => value !== "hello"
-  ? { hello: true }
-  : {};
 
 describe("FormGroup", () => {
   it("should initialize via constructor", () => {
@@ -150,5 +147,33 @@ describe("FormGroup", () => {
     });
 
     t.equal(form.valid, true);
+  });
+
+  it("should set validating", () => {
+    const form = new FormGroup({});
+    form.setValidating(true);
+    t.equal(form.validating, true);
+
+    form.setValidating(false);
+    t.equal(form.validating, false);
+  });
+
+  it("should set validating flag", () => {
+    const field = new Field("foo", {
+      validator: asyncIsHello,
+    });
+
+    const form = new FormGroup({
+      bar: new FieldArray([field]),
+      baz: new FormGroup({ foo: field }),
+      foo: field,
+    });
+
+    field.setValue("nope", true);
+    const p = form.validate();
+    t.equal(form.validating, true);
+    return p.then(() => {
+      t.equal(form.validating, false);
+    });
   });
 });

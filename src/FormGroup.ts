@@ -39,14 +39,14 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
   }
 
   @computed get validating() {
-    if (this._validating) {
-      return true;
-    }
-
     for (const key of this.fieldKeys()) {
       if ((this.fields as any)[key].validating) {
         return true;
       }
+    }
+
+    if (this._validating) {
+      return true;
     }
 
     return false;
@@ -77,21 +77,26 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
   @action.bound validate(): Promise<boolean> {
     this._validating = true;
 
-    const p = this.fieldKeys().reduce((seq, key) => {
-      const field = (this.fields as any)[key];
-      return seq.then(() => field.validate());
-    }, Promise.resolve());
+    const p = Promise.all(
+      this.fieldKeys()
+        .map(key => (this.fields as any)[key].validate()),
+    );
 
     if (typeof this.validator === "undefined") {
-      return p.then(() => this.valid);
+      return p
+        .then(() => {
+          this._validating = false;
+          this.errors = {};
+        })
+        .then(() => this.valid);
     }
 
     return p.then(() => this.validator(this.fields))
-      .then(action((errors: ValidationError) => {
+      .then((errors: ValidationError) => {
         this._validating = false;
         this.errors = errors;
         return this.valid;
-      }));
+      });
   }
 
   @action.bound submit() {
@@ -105,13 +110,7 @@ export default class FormGroup<T extends FieldCache> implements AbstractFormCont
         return res;
       }
 
-      if (item instanceof Field) {
-        res[key] = (item as Field).value;
-      } else if (item instanceof FieldArray) {
-        res[key] = (item as FieldArray).submit();
-      } else if (item instanceof FormGroup) {
-        res[key] = (item as FormGroup<any>).submit();
-      }
+      res[key] = item.submit();
 
       return res;
     }, {} as any);
