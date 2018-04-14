@@ -1,26 +1,22 @@
-import { assert as t } from "chai";
-import { toJS } from "mobx";
+import * as t from "assert";
 import Form from "../match-passwords";
+import { FieldStatus } from "../../src";
 
 describe("match-passwords", () => {
   beforeEach(() => Form.reset());
 
-  it("should validate that both fields are the same", () => {
+  it("should validate that both fields are the same", async () => {
     Form.fields.password.setValue("nope");
 
-    return Form.validate()
-      .then(() => {
-        t.equal(Form.valid, false);
-        Form.fields.confirmPassword.setValue("nope");
-      })
-      .then(() => Form.validate())
-      .then(() => {
-        t.equal(Form.valid, true);
-        Form.fields.password.setValue("asdf");
-      })
-      .then(() => Form.validate())
-      .then(() => {
-        t.equal(Form.valid, false);
-      });
+    await Form.validate();
+    t.equal(Form.status, FieldStatus.INVALID);
+
+    Form.fields.confirmPassword.setValue("nope");
+    await Form.validate();
+    t.equal(Form.status, FieldStatus.VALID);
+
+    Form.fields.password.setValue("asdf");
+    await Form.validate();
+    t.equal(Form.status, FieldStatus.INVALID);
   });
 });

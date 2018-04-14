@@ -1,20 +1,22 @@
-import { Field, FieldCache, FormGroup, LocalFormControls } from "../src";
+import { Field, FormGroup } from "../src";
 
-interface PasswordGroup {
+interface PasswordFields {
   password: Field;
   confirmPassword: Field;
 }
 
-export const matchPasswords = (fields: PasswordGroup) => {
-  return fields.password.value !== fields.confirmPassword.value
-    ? { matchPasswords: true }
-    : {};
+export const matchPasswords = (group: FormGroup<PasswordFields>) => {
+  return group.fields.password.value !== group.fields.confirmPassword.value
+    ? "matchPasswords"
+    : undefined;
 };
 
-const options = { validator: matchPasswords };
-const form = new FormGroup({
-  confirmPassword: new Field(),
-  password: new Field(),
-}, options);
+const form = new FormGroup(
+  {
+    confirmPassword: new Field(),
+    password: new Field(),
+  },
+  { sync: [matchPasswords] },
+);
 
 export default form;

@@ -1,35 +1,23 @@
-import Field from "./Field";
+import { ValidatorOptions } from "./Validator";
 
-export interface FieldCache {
-  [key: string]: AbstractFormControl;
+export enum FieldStatus {
+  VALID = "valid",
+  INVALID = "invalid",
+  PENDING = "pending",
 }
 
 export interface AbstractFormControl {
   disabled: boolean;
-  errors: ValidationError;
-  validating: boolean;
-  valid: boolean;
-  reset(): void;
+  errors: string[];
+  _validating: boolean;
+  status: FieldStatus;
+  value: any;
+  reset(): Promise<void>;
   validate(): Promise<boolean>;
   setDisabled(value: boolean): void;
-  submit(): any;
 }
 
-export interface LocalFormControls {
-  [name: string]: Field;
-}
-
-export interface ControlOptions {
-  disabled?: boolean;
-  validator?: Validator<any>;
-}
-
-export interface BooleanFieldOptions {
+export interface ControlOptions<T extends AbstractFormControl>
+  extends ValidatorOptions<T> {
   disabled?: boolean;
 }
-
-export interface ValidationError {
-  [error: string]: any;
-}
-
-export type Validator<T> = (value: T) => ValidationError | Promise<ValidationError>;

@@ -1,4 +1,4 @@
-import { assert as t } from "chai";
+import * as t from "assert";
 import * as index from "../index";
 
 describe("index", () => {

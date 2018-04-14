@@ -1,96 +1,68 @@
 import { action, computed, observable } from "mobx";
-import { AbstractFormControl, ControlOptions, Validator, ValidationError } from "./shapes";
+import { AbstractFormControl, ControlOptions, FieldStatus } from "./shapes";
+import { Validator } from "./Validator";
 
-export default class Field implements AbstractFormControl {
-  validator: Validator<any>;
-  @observable errors: ValidationError = {};
+export type FieldValue = string | number | boolean | null;
+
+export interface FieldOptions extends ControlOptions<Field> {
+  value?: FieldValue;
+}
+
+export class Field implements AbstractFormControl {
+  @observable errors: string[] = [];
   @observable initial: boolean = true;
   @observable disabled: boolean = false;
-  @observable validating: boolean = false;
-  @observable _value: any;
-  @observable defaultValue: any = null;
+  @observable _validating: boolean = false;
+  @observable value: FieldValue;
 
-  constructor(options?: ControlOptions);
-  constructor(defaultValue: string | number | boolean | null, options?: ControlOptions);
-  constructor(defaultValue?: string | number | boolean | null | ControlOptions, options?: ControlOptions) {
-    if (typeof defaultValue !== "string" && typeof defaultValue !== "number"
-      && typeof defaultValue !== "boolean" && defaultValue !== null) {
-      options = defaultValue;
-      defaultValue = null;
-    }
+  private validator: Validator<Field>;
+  private defaultValue: FieldValue;
 
-    this.defaultValue = defaultValue;
-    Object.assign(this, options);
-  }
-
-  @computed get valid() {
-    if (!this.disabled && (Object.keys(this.errors).length || this.validating)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  get value() {
-    if (this.initial &&
-      (this._value === null || typeof this._value === "undefined" || !this._value.length) &&
-      (this.defaultValue !== null)) {
-      return this.defaultValue;
-    }
-
-    return this._value;
-  }
-
-  @action.bound reset() {
-    this.initial = true;
-    this._value = null;
-    this.errors = {};
-    this.validating = false;
-  }
-
-  @action.bound setValue(value: any, skipValidation?: boolean) {
-    this.initial = false;
-    this._value = value;
-
-    if (!skipValidation) {
-      this.validate();
-    }
-  }
-
-  @action.bound setDefaultValue(value: any) {
+  constructor({
+    value = null,
+    disabled = false,
+    async,
+    bailFirstError,
+    sync,
+  }: FieldOptions = {}) {
+    this.validator = new Validator({ async, sync, bailFirstError });
     this.defaultValue = value;
+    this.value = value;
+    this.disabled = disabled;
   }
 
-  @action.bound setDisabled(value: boolean) {
+  @computed
+  get status() {
+    if (this.disabled || this.errors.length === 0) {
+      return FieldStatus.VALID;
+    } else if (this._validating) {
+      return FieldStatus.PENDING;
+    }
+    return FieldStatus.INVALID;
+  }
+
+  @action.bound
+  reset() {
+    this.initial = true;
+    this.value = this.defaultValue;
+    this.errors = [];
+    this._validating = false;
+    return this.validate().then(() => undefined);
+  }
+
+  @action.bound
+  setValue(value: FieldValue) {
+    this.initial = false;
+    this.value = value;
+  }
+
+  @action.bound
+  setDisabled(value: boolean) {
     this.disabled = value;
   }
 
-  @action.bound submit(): any {
-    return this.value;
-  }
-
-  @action.bound validate(): Promise<boolean> {
-    this.validating = true;
-
-    if (typeof this.validator === "undefined") {
-      this.errors = {};
-      this.validating = false;
-      return Promise.resolve(true);
-    }
-
-    const result = this.validator(this.value);
-    if (typeof (result as any).then !== "function") {
-      this.errors = result;
-      this.validating = false;
-      return Promise.resolve(this.valid);
-    }
-
-    this.validating = true;
-    return (result as Promise<any>)
-      .then((res: ValidationError) => {
-        this.validating = false;
-        this.errors = res;
-        return this.valid;
-      });
+  @action.bound
+  validate(): Promise<boolean> {
+    return this.validator.run(this);
   }
 }

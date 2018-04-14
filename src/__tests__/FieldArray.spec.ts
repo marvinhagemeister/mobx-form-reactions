@@ -1,9 +1,10 @@
-import { assert as t } from "chai";
+import * as t from "assert";
 import { toJS } from "mobx";
 import { asyncIsHello, isHello } from "./helpers";
-import FieldArray from "../FieldArray";
-import FormGroup from "../FormGroup";
-import Field from "../Field";
+import { FieldArray } from "../FieldArray";
+import { FormGroup } from "../FormGroup";
+import { Field } from "../Field";
+import { FieldStatus } from "..";
 
 describe("FieldArray", () => {
   it("should add fields via constructor", () => {
@@ -23,10 +24,7 @@ describe("FieldArray", () => {
 
   it("should remove fields at index", () => {
     const first = new Field();
-    const form = new FieldArray([
-      first,
-      new Field(),
-    ]);
+    const form = new FieldArray([first, new Field()]);
 
     form.removeAt(1);
 
@@ -36,10 +34,7 @@ describe("FieldArray", () => {
 
   it("should insert fields at index", () => {
     const next = new Field();
-    const form = new FieldArray([
-      new Field(),
-      new Field(),
-    ]);
+    const form = new FieldArray([new Field(), new Field()]);
 
     form.insert(1, next);
 
@@ -47,36 +42,32 @@ describe("FieldArray", () => {
     t.deepEqual(form.fields[1], next);
   });
 
-  it("should reset itself and fields", () => {
-    const foo = new Field({ validator: isHello });
+  it("should reset itself and fields", async () => {
+    const foo = new Field({ sync: [isHello], value: "hello" });
     const form = new FieldArray();
     form.push(foo);
 
     foo.setValue("nope");
     t.equal(foo.initial, false);
 
-    return form.validate()
-      .then(() => {
-        t.deepEqual(toJS(foo.errors), { hello: true });
-        form.reset();
+    await form.validate();
 
-        t.deepEqual(toJS(foo.errors), {});
-        t.equal(foo.initial, true);
-      });
+    t.deepEqual(toJS(foo.errors), ["hello"]);
+    form.reset();
+
+    t.deepEqual(toJS(foo.errors), []);
+    t.equal(foo.initial, true);
   });
 
-  it("should submit values", () => {
-    const field = new Field("value1");
+  it("should get values", () => {
+    const field = new Field({ value: "value1" });
     const group = new FormGroup({
-      foo: new Field("value2"),
+      foo: new Field({ value: "value2" }),
     });
 
-    const form = new FieldArray([
-      field,
-      group,
-    ]);
+    const form = new FieldArray([field, group]);
 
-    t.deepEqual(form.submit(), [
+    t.deepEqual(form.value, [
       "value1",
       {
         foo: "value2",
@@ -84,11 +75,11 @@ describe("FieldArray", () => {
     ]);
   });
 
-  it("should submit empty array if disabled", () => {
+  it("should get empty array if disabled", () => {
     const form = new FieldArray([new Field()]);
     form.setDisabled(true);
 
-    t.deepEqual(form.submit(), []);
+    t.deepEqual(form.value, []);
   });
 
   it("should check if fields are disabled", () => {
@@ -98,78 +89,78 @@ describe("FieldArray", () => {
       new FormGroup({ foo: new Field() }),
     ]);
 
-    (form.fields[0] as Field).setDisabled(true);
-    (form.fields[1] as FieldArray).setDisabled(true);
-    (form.fields[2] as FormGroup<any>).setDisabled(true);
-
-    t.deepEqual(form.submit(), []);
+    form.fields.forEach(x => x.setDisabled(true));
+    t.deepEqual(form.value, []);
   });
 
   it("should skip fields in validation if disabled", () => {
-    const field = new Field("foo", { validator: isHello });
-    const form = new FieldArray([
-      field,
-      new Field(),
-    ]);
+    const field = new Field({ value: "foo", sync: [isHello] });
+    const form = new FieldArray([field, new Field()]);
 
     field.setValue("no");
     field.setDisabled(true);
 
-    t.deepEqual(form.valid, true);
+    t.deepEqual(form.status, FieldStatus.VALID);
   });
 
-  it("should run validator", () => {
-    const field = new Field("foo", { validator: isHello });
-    const form = new FieldArray([
-      field,
-      new Field(),
-    ], { validator: fields => isHello(fields[0].value) });
-
-    return form.validate()
-      .then(valid => t.equal(valid, false))
-      .then(() => field.setValue("hello"))
-      .then(() => form.validate())
-      .then(valid => t.equal(valid, true));
-  });
-
-  it("should set validating flag", () => {
-    const field = new Field("foo", {
-      validator: asyncIsHello,
+  it("should run validator", async () => {
+    const field = new Field({ value: "foo", sync: [isHello] });
+    const form = new FieldArray([field, new Field()], {
+      sync: [group => isHello(group.fields[0] as Field)],
     });
 
-    const field2 = new Field("foo", {
-      validator: asyncIsHello,
+    const valid = await form.validate();
+    t.equal(valid, false);
+
+    await field.setValue("hello");
+
+    const formValid = await form.validate();
+    t.equal(formValid, true);
+  });
+
+  it("should set validating flag", async () => {
+    const field = new Field({
+      value: "hello",
+      async: [asyncIsHello],
+    });
+
+    const field2 = new Field({
+      value: "hello",
+      async: [asyncIsHello],
     });
 
     const form = new FieldArray([field, field2]);
 
-    field.setValue("nope", true);
-    field2.setValue("nope", true);
+    await field.setValue("nope");
+    await field2.setValue("nope");
 
     const p = form.validate();
-    t.equal(form.validating, true);
-    return p.then(() => {
-      t.equal(form.validating, false);
-    });
+    t.equal(form.status, FieldStatus.PENDING);
+
+    await p;
+    t.equal(form.status, FieldStatus.INVALID);
   });
 
-  it("should set validating flag if validator is present", () => {
-    const field = new Field("foo", {
-      validator: asyncIsHello,
+  it("should set validating flag if validator is present", async () => {
+    const field = new Field({
+      value: "foo",
+      async: [asyncIsHello],
     });
 
-    const form = new FieldArray([], {
-      validator: fields => fields.length !== 0 && fields[0].value !== "hello"
-        ? { hello: true }
-        : { },
+    const form = new FieldArray([field], {
+      sync: [
+        group =>
+          group.fields.length !== 0 && group.fields[0].value !== "hello"
+            ? "hello"
+            : undefined,
+      ],
     });
 
-    field.setValue("nope", true);
+    await field.setValue("nope");
 
     const p = form.validate();
-    t.equal(form.validating, true);
-    return p.then(() => {
-      t.equal(form.validating, false);
-    });
+    t.equal(form.status, FieldStatus.PENDING);
+    await p;
+    t.equal(form.status, FieldStatus.INVALID);
   });
 });

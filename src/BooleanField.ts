@@ -1,38 +1,26 @@
 import { action } from "mobx";
-import Field from "./Field";
-import { isBoolean } from "./validations";
-import { BooleanFieldOptions, ControlOptions } from "./shapes";
+import { Field } from "./Field";
+import { ControlOptions } from "./shapes";
 
-export default class BooleanField extends Field {
-  constructor(options?: BooleanFieldOptions);
-  constructor(defaultValue: boolean, options?: BooleanFieldOptions);
-  constructor(defaultValue?: boolean | BooleanFieldOptions, options?: BooleanFieldOptions) {
-    if (typeof defaultValue === "undefined") {
-      options = {};
-      defaultValue = false;
-    } else if (typeof defaultValue !== "boolean") {
-      options = defaultValue;
-      defaultValue = false;
-    } else if (typeof options === "undefined") {
-      options = {};
-    }
-
-    (options as ControlOptions).validator = isBoolean;
-    super(defaultValue as boolean, options);
+export class BooleanField extends Field {
+  constructor({
+    disabled = false,
+    value = false,
+  }: Pick<ControlOptions<Field>, "disabled"> & { value?: boolean } = {}) {
+    super({
+      value,
+      disabled,
+    });
   }
 
-  @action.bound setValue(value: boolean) {
-    this.initial = false;
-    this._value = value;
-    this.validate();
+  @action.bound
+  setValue(value: boolean) {
+    return super.setValue(value);
   }
 
-  @action.bound toggle() {
+  @action.bound
+  toggle() {
     this.initial = false;
-    if (this._value === null || typeof this._value === "undefined") {
-        this._value = !this.defaultValue;
-    } else {
-      this._value = !this._value;
-    }
+    this.value = !this.value;
   }
 }
