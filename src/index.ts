@@ -1,7 +1,8 @@
-export { default as Field } from "./Field";
-export { default as FormGroup } from "./FormGroup";
-export { default as FieldArray } from "./FieldArray";
-export { default as BooleanField } from "./BooleanField";
+export * from "./Field";
+export * from "./FormGroup";
+export * from "./FieldArray";
+export * from "./BooleanField";
 export * from "./utils";
 export * from "./shapes";
 export * from "./validations";
+export * from "./Validator";

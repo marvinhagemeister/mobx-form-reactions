@@ -1,100 +1,83 @@
 import { action, computed, observable } from "mobx";
-import { AbstractFormControl, ControlOptions, Validator, ValidationError } from "./shapes";
-import FormGroup from "./FormGroup";
-import Field from "./Field";
+import { AbstractFormControl, ControlOptions, FieldStatus } from "./shapes";
+import { getStatus } from "./utils";
+import { Validator } from "./Validator";
 
-export default class FieldArray implements AbstractFormControl {
-  validator: Validator<any>;
-  @observable disabled: boolean = false;
+export class FieldArray implements AbstractFormControl {
+  private validator: Validator<FieldArray>;
+  @observable disabled: boolean;
   @observable _validating: boolean = false;
   @observable fields: AbstractFormControl[] = [];
-  @observable errors: ValidationError = {};
+  @observable errors: string[] = [];
 
-  constructor(fields?: AbstractFormControl[], options?: ControlOptions) {
-    if (fields) {
-      this.push(...fields);
-    }
-
-    if (options) {
-      Object.assign(this, options);
-    }
+  constructor(
+    fields: AbstractFormControl[] = [],
+    {
+      disabled = false,
+      sync,
+      async,
+      bailFirstError,
+    }: ControlOptions<FieldArray> = {},
+  ) {
+    this.disabled = disabled;
+    this.validator = new Validator({ sync, async, bailFirstError });
+    this.push(...fields);
   }
 
-  @computed get valid() {
+  @computed
+  get status() {
+    if (this.errors.length > 0) return FieldStatus.INVALID;
+    if (this._validating) return FieldStatus.PENDING;
+    return getStatus(this.fields);
+  }
+
+  @computed
+  get value() {
+    if (this.disabled) return [];
+
+    const out = [];
     for (const field of this.fields) {
-      if (!field.valid || field.validating) {
-        return false;
-      }
+      if (!field.disabled) out.push(field.value);
     }
-
-    return true;
+    return out;
   }
 
-  @computed get validating() {
-    for (const field of this.fields) {
-      if (field.validating) {
-        return true;
-      }
-    }
-
-    if (this._validating) {
-      return true;
-    }
-
-    return false;
-  }
-
-  @action.bound setDisabled(value: boolean) {
+  @action.bound
+  setDisabled(value: boolean) {
     this.disabled = value;
   }
 
-  @action.bound validate(): Promise<boolean> {
+  @action.bound
+  validate(): Promise<boolean> {
     this._validating = true;
 
-    const p = Promise.all(
-      this.fields.map(field => field.validate()),
-    );
-
-    if (!this.validator) {
-      return p.then(() => {
-        this._validating = false;
-        this.errors = {};
-        return this.valid;
-      });
-    }
-
-    return p.then(() => this.validator(this.fields))
-      .then((result: ValidationError) => {
-        this._validating = false;
-        Object.assign(this.errors, result);
-        return this.valid;
-      });
+    const p = Promise.all(this.fields.map(field => field.validate()));
+    return p.then(() => this.validator.run(this)).then(result => {
+      this._validating = false;
+      return this.status === FieldStatus.VALID;
+    });
   }
 
-  @action.bound removeAt(index: number) {
+  @action.bound
+  removeAt(index: number) {
     this.fields.splice(index, 1);
   }
 
-  @action.bound insert(index: number, field: AbstractFormControl) {
+  @action.bound
+  insert(index: number, field: AbstractFormControl) {
     this.fields.splice(index, 0, field);
   }
 
-  @action.bound push(...fields: AbstractFormControl[]) {
+  @action.bound
+  push(...fields: AbstractFormControl[]) {
     this.fields.push(...fields);
   }
 
-  @action.bound reset() {
+  @action.bound
+  reset() {
     this.fields.forEach(field => field.reset());
-    this.errors = {};
-  }
-
-  @action.bound submit(): Object {
-    if (this.disabled) {
-      return [];
-    }
-
-    return this.fields
-      .filter(item => !item.disabled)
-      .map(item => item.submit(), []);
+    this.errors = [];
+    this._validating = false;
+    return this.validate().then(() => undefined);
   }
 }

@@ -1,12 +1,9 @@
-import { assert as t } from "chai";
-import { useStrict, toJS } from "mobx";
-import { Validator, ValidationError } from "../shapes";
-import Field from "../Field";
-
-useStrict(true);
-
-const isHello = (value: any) =>
-  value !== "hello" ? { hello: true } : {};
+import * as t from "assert";
+import { toJS } from "mobx";
+import { FieldStatus } from "../shapes";
+import { Field } from "../Field";
+import { SyncValidateFn, AsyncValidateFn } from "..";
+import { isHello } from "./helpers";
 
 describe("Field", () => {
   it("should set options", () => {
@@ -16,52 +13,49 @@ describe("Field", () => {
     const field2 = new Field({ disabled: true });
     t.equal(field2.disabled, true);
 
-    const field3 = new Field("foo", { disabled: true });
+    const field3 = new Field({ value: "foo", disabled: true });
     t.equal(field3.disabled, true);
-    t.equal(field3.defaultValue, "foo");
+    t.equal(field3.value, "foo");
   });
 
-  it("should validate synchronously", () => {
-    const field = new Field("foo", {
-      validator: isHello,
+  it("should validate synchronously", async () => {
+    const field = new Field({
+      value: "foo",
+      sync: [isHello],
     });
 
     field.setValue("nope");
-    field.validate();
+    await field.validate();
 
-    t.equal(field.valid, false);
-    t.deepEqual(field.errors, {
-      hello: true,
-    });
+    t.equal(field.status, FieldStatus.INVALID);
+    t.deepEqual(toJS(field.errors), ["hello"]);
 
     field.setValue("hello");
     field.validate();
-    t.equal(field.valid, true);
+    t.equal(field.status, FieldStatus.VALID);
   });
 
-  it("should validate asynchronously", () => {
-    const validator: Validator<any> = (value: string): Promise<ValidationError> => {
-      return new Promise<ValidationError>(res => {
-        setTimeout(() => {
-          return res(value !== "hello" ? { nope: true  } : {});
-        }, 10);
-      });
+  it("should validate asynchronously", async () => {
+    const fn: AsyncValidateFn<Field> = field => {
+      return new Promise(res =>
+        setTimeout(() => res(field.value !== "hello" ? "nope" : undefined), 0),
+      );
     };
 
-    const field = new Field("foo", {
-      validator,
+    const field = new Field({
+      value: "foo",
+      async: [fn],
     });
 
     field.setValue("nope");
-    return field.validate()
-      .then(() => {
-        t.equal(field.valid, false);
-        t.equal(field.initial, false);
-      });
+
+    await field.validate();
+    t.equal(field.status, FieldStatus.INVALID);
+    t.equal(field.initial, false);
   });
 
   it("should set value", () => {
-    const field = new Field("foo");
+    const field = new Field({ value: "foo" });
     field.setValue("hey");
 
     t.equal(field.value, "hey");
@@ -69,25 +63,20 @@ describe("Field", () => {
   });
 
   it("should get fall back to defaultValue when empty", () => {
-    const field = new Field(false);
+    const field = new Field({ value: false });
     t.equal(field.value, false);
   });
 
   it("should reset a field", () => {
-    const field = new Field("foo");
+    const field = new Field({ value: "foo" });
     field.setValue("baz");
 
     t.equal(field.initial, false);
 
     field.reset();
-    t.deepEqual(toJS(field), {
-      _value: null,
-      defaultValue: "foo",
-      disabled: false,
-      errors: {},
-      initial: true,
-      validating: false,
-    });
+    t.equal(field.value, "foo");
+    t.equal(field.status, FieldStatus.VALID);
+    t.equal(field.initial, true);
   });
 
   it("should set disabled", () => {
@@ -98,31 +87,10 @@ describe("Field", () => {
     t.equal(field.disabled, true);
   });
 
-  it("should skip validation", () => {
-    const field = new Field("foo", {
-      validator: isHello,
-    });
+  it("should validate defaultValue", async () => {
+    const field = new Field({ value: "foo", sync: [isHello] });
+    await field.validate();
 
-    field.setValue("hey", true);
-    t.equal(field.valid, true);
-
-    field.setValue("no");
-    t.equal(field.valid, false);
-  });
-
-  it("should set defaultValue", () => {
-    const field = new Field("foo");
-    t.equal(field.defaultValue, "foo");
-
-    field.setDefaultValue("bar");
-    t.equal(field.defaultValue, "bar");
-  });
-
-  it("should validate defaultValue", () => {
-    const field = new Field("hello", { validator: isHello });
-    return field.validate()
-      .then(() => {
-        t.equal(field.valid, true);
-      });
+    t.equal(field.status, FieldStatus.INVALID);
   });
 });

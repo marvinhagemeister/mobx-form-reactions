@@ -1,76 +1,21 @@
-import { ValidationError } from "./shapes";
+import { FieldValue } from "./Field";
 
-const isNullOrUndef = (value: any) => typeof value === "undefined" || value === null;
-
-export const isEmpty = (value: any) => {
-  if (typeof value === "string" && value.trim().length === 0) {
-    return true;
+export const required = (value: FieldValue | any[] | object) => {
+  if (
+    (typeof value === "string" && value.trim().length === 0) ||
+    value === null ||
+    value === undefined ||
+    Object.keys(value).length === 0
+  ) {
+    return "required";
   }
-
-  return isNullOrUndef(value) || Object.keys(value).length === 0;
 };
 
-const isMinLength = (min: number) => (value: any) =>
-  !isNullOrUndef(value) && value.length >= min;
+export const minLength = (min: number) => (value: string | any[]) =>
+  value.length < min ? "minLength" : undefined;
 
-const isMaxLength = (max: number) => (value: any) =>
-  !isNullOrUndef(value) && value.length <= max;
+export const maxLength = (max: number) => (value: string | any[]) =>
+  value.length > max ? "maxLength" : undefined;
 
-const isPattern = (regex: RegExp) => (value: any) =>
-  !isNullOrUndef(value) && regex.test(value);
-
-const isRange = (min: number, max: number) => (value: any) =>
-  !isNullOrUndef(value) && value >= min && value <= max;
-
-// Validators
-export const required = (value: any): ValidationError =>
-  isEmpty(value) ? { required: true } : {};
-
-export interface IMinLength {
-  minLength?: boolean;
-}
-
-export const minLength = (min: number) => (value: any): IMinLength =>
-  !isMinLength(min)(value) ? { minLength: true } : {};
-
-export interface IMaxLength {
-  maxLength?: boolean;
-}
-
-export const maxLength = (max: number) => (value: any): IMaxLength =>
-  !isMaxLength(max)(value) ? { maxLength: true } : {};
-
-export interface IPattern {
-  pattern?: boolean;
-}
-
-export const pattern = (regex: RegExp) => (value: any): IPattern =>
-  !isPattern(regex)(value) ? { pattern: true } : {};
-
-export interface IRange {
-  range?: boolean;
-}
-
-export const range = (min: number, max: number) => (value: any): IRange =>
-  !isRange(min, max)(value) ? { range: true } : {};
-
-export interface IOneOf {
-  oneOf?: boolean;
-}
-
-export const oneOf = (haystack: any[]) => (value: any): IOneOf =>
-  haystack.indexOf(value) === -1 ? { oneOf: true } : {};
-
-export interface IIsBoolean {
-  isBoolean?: boolean;
-}
-
-export const isBoolean = (value: any): IIsBoolean =>
-  value !== false && value !== true ? { isBoolean: true } : {};
-
-export interface IIsNumber {
-  isNumber?: boolean;
-}
-
-export const isNumber = (value: any): IIsNumber =>
-  typeof value !== "number" ? { isNumber: true } : {};
+export const pattern = (regex: RegExp) => (value: string) =>
+  !regex.test(value) ? "pattern" : undefined;

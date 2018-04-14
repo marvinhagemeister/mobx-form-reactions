@@ -1,118 +1,75 @@
-import { action, computed, autorun, observe, observable } from "mobx";
-import Field from "./Field";
-import FieldArray from "./FieldArray";
-import {
-  AbstractFormControl,
-  FieldCache,
-  ControlOptions,
-  LocalFormControls,
-  Validator,
-  ValidationError,
-} from "./shapes";
+import { action, computed, observable } from "mobx";
+import { AbstractFormControl, ControlOptions, FieldStatus } from "./shapes";
+import { getStatus } from "./utils";
+import { Validator } from "./Validator";
 
-export default class FormGroup<T extends FieldCache> implements AbstractFormControl {
-  validator: Validator<any>;
+export class FormGroup<T extends object> implements AbstractFormControl {
+  private validator: Validator<FormGroup<T>>;
   @observable disabled: boolean = false;
-  @observable errors: ValidationError = {};
+  @observable errors: string[] = [];
   @observable fields: T;
-  @observable private _validating: boolean = false;
+  @observable _validating: boolean = false;
 
-  constructor(fields: T, options?: ControlOptions) {
+  constructor(
+    fields: T,
+    { sync, async, disabled = false }: ControlOptions<FormGroup<T>> = {},
+  ) {
     this.fields = fields;
-    if (options) {
-      Object.assign(this, options);
-    }
+    this.validator = new Validator({ sync, async });
+    this.disabled = disabled;
   }
 
-  @computed get valid() {
-    for (const key of this.fieldKeys()) {
-      if (!((this.fields as any)[key].valid)) {
-        return false;
+  @computed
+  get status() {
+    if (this.errors.length > 0) return FieldStatus.INVALID;
+    if (this._validating) return FieldStatus.PENDING;
+    return getStatus(this.allFields);
+  }
+
+  @computed
+  private get allFields(): AbstractFormControl[] {
+    return Object.keys(this.fields).map(key => (this.fields as any)[key]);
+  }
+
+  @computed
+  get value() {
+    if (this.disabled) return {};
+
+    return Object.keys(this.fields).reduce<Record<string, any>>((res, key) => {
+      const item = (this.fields as any)[key];
+      if (!item.disabled) {
+        res[key] = item.value;
       }
-    }
-
-    if (Object.keys(this.errors).length || this.validating) {
-      return false;
-    }
-
-    return true;
+      return res;
+    }, {});
   }
 
-  @computed get validating() {
-    for (const key of this.fieldKeys()) {
-      if ((this.fields as any)[key].validating) {
-        return true;
-      }
-    }
-
-    if (this._validating) {
-      return true;
-    }
-
-    return false;
-  }
-
-  fieldKeys() {
-    return Object.keys(this.fields);
-  }
-
-  @action.bound setValidating(value: boolean) {
-    this._validating = value;
-  }
-
-  @action.bound setDisabled(value: boolean) {
+  @action.bound
+  setDisabled(value: boolean) {
     this.disabled = value;
   }
 
-  @action.bound reset() {
-    const keys = Object.keys(this.fields);
-    for (const key of keys) {
-      (this.fields as any)[key].reset();
+  @action.bound
+  reset() {
+    for (const field of this.allFields) {
+      field.reset();
     }
 
-    this.errors = {};
+    this.errors = [];
     this._validating = false;
+    return this.validate().then(() => undefined);
   }
 
-  @action.bound validate(): Promise<boolean> {
+  @action.bound
+  validate(): Promise<boolean> {
+    this.errors = [];
     this._validating = true;
 
-    const p = Promise.all(
-      this.fieldKeys()
-        .map(key => (this.fields as any)[key].validate()),
-    );
-
-    if (typeof this.validator === "undefined") {
-      return p
-        .then(() => {
-          this._validating = false;
-          this.errors = {};
-        })
-        .then(() => this.valid);
-    }
-
-    return p.then(() => this.validator(this.fields))
-      .then((errors: ValidationError) => {
-        this._validating = false;
-        this.errors = errors;
-        return this.valid;
-      });
-  }
-
-  @action.bound submit() {
-    if (this.disabled) {
-      return {};
-    }
-
-    return this.fieldKeys().reduce((res, key) => {
-      const item = this.fields[key];
-      if (item.disabled) {
-        return res;
-      }
-
-      res[key] = item.submit();
-
-      return res;
-    }, {} as any);
+    const p = Promise.all(this.allFields.map(field => field.validate()));
+    return p.then(res => {
+      return this.validator
+        .run(this)
+        .then(() => this.status === FieldStatus.VALID);
+    });
   }
 }

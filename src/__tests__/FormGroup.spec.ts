@@ -1,11 +1,10 @@
-import { assert as t } from "chai";
-import { useStrict, toJS } from "mobx";
+import * as t from "assert";
+import { toJS } from "mobx";
 import { asyncIsHello, isHello } from "./helpers";
-import Field from "../Field";
-import FormGroup from "../FormGroup";
-import FieldArray from "../FieldArray";
-
-useStrict(true);
+import { Field } from "../Field";
+import { FormGroup } from "../FormGroup";
+import { FieldArray } from "../FieldArray";
+import { FieldStatus, AsyncValidateFn } from "..";
 
 describe("FormGroup", () => {
   it("should initialize via constructor", () => {
@@ -13,15 +12,17 @@ describe("FormGroup", () => {
     const fb = new Field();
     const form = new FormGroup({ fa, fb });
 
-    t.equal(form.valid, true);
+    t.equal(form.status, FieldStatus.VALID);
 
-    const form2 = new FormGroup({}, {
-      disabled: true,
-      validator: (value: any) => ({}),
-    });
+    const form2 = new FormGroup(
+      {},
+      {
+        disabled: true,
+        sync: [(value: any) => undefined],
+      },
+    );
 
     t.equal(form2.disabled, true);
-    t.equal(typeof form2.validator, "function");
   });
 
   it("should return valid if fields are valid", () => {
@@ -29,17 +30,18 @@ describe("FormGroup", () => {
     const fb = new Field();
     const form = new FormGroup({ fa, fb });
 
-    t.equal(form.valid, true);
+    t.equal(form.status, FieldStatus.VALID);
   });
 
-  it("should return invalid if one field is invalid", () => {
+  it("should return invalid if one field is invalid", async () => {
     const fa = new Field();
-    const fb = new Field(null, { validator: isHello });
+    const fb = new Field({ sync: [isHello] });
     const form = new FormGroup({ fa, fb });
 
     fb.setValue("yes");
-    return form.validate()
-      .then(() => t.equal(form.valid, false));
+
+    const valid = await form.validate();
+    t.equal(form.status, FieldStatus.INVALID);
   });
 
   it("should getField by name", () => {
@@ -50,57 +52,58 @@ describe("FormGroup", () => {
     t.equal(form.fields.fa === fa, true);
   });
 
-  it("should reset the FormGroup", () => {
-    const foo = new Field({ validator: isHello });
+  it("should reset the FormGroup", async () => {
+    const foo = new Field({ sync: [isHello] });
     const form = new FormGroup({ foo });
 
     foo.setValue("nope");
-    return form.validate()
-      .then(() => {
-        t.equal(form.valid, false);
-        t.deepEqual(form.errors, {});
-        t.deepEqual(foo.errors, {
-          hello: true,
-        });
-      })
-      .then(() => {
-        form.reset();
 
-        t.equal(form.valid, true);
-        t.deepEqual(form.errors, {});
-        t.deepEqual(foo.errors, {});
-      });
+    const valid = await form.validate();
+    t.equal(form.status, FieldStatus.INVALID);
+    t.deepEqual(form.errors, {});
+    t.deepEqual(toJS(foo.errors), ["hello"]);
+
+    await form.reset();
+
+    t.equal(form.status, FieldStatus.INVALID);
+    t.deepEqual(form.errors, {});
+    t.deepEqual(foo.errors, []);
   });
 
-  it("should handle pending validation", () => {
-    const validator = (value: any) =>
-      new Promise((res, rej) => {
-        setTimeout(() => res({}), 10);
-      });
+  it("should handle pending validation", async () => {
+    const validator: AsyncValidateFn<any> = () =>
+      new Promise(res => setTimeout(res, 10));
 
     const foo = new Field();
-    const form = new FormGroup({ foo }, { validator });
+    const form = new FormGroup({ foo }, { async: [validator] });
 
-    t.equal(form.validating, false);
+    t.equal(form.status, FieldStatus.VALID);
     foo.setValue("");
     const p = form.validate();
-    t.equal(form.validating, true);
+    t.equal(form.status, FieldStatus.PENDING);
 
-    return p.then(() => {
-      t.equal(form.validating, false);
-    });
+    await p;
+    t.equal(form.status, FieldStatus.VALID);
   });
 
-  it("should submit values", () => {
+  it("should get values", () => {
     const form = new FormGroup({
       bar: new FormGroup({
-        name: new Field("value2"),
+        name: new Field({ value: "value2" }),
       }),
-      baz: new FieldArray([new Field("value3")]),
-      foo: new Field("value1"),
+      baz: new FieldArray([new Field({ value: "value3" })]),
+      foo: new Field({ value: "value1" }),
     });
 
-    t.deepEqual(form.submit(), {
+    const form2 = new FormGroup({
+      bar: new FormGroup({
+        name: new Field({ value: "value2" }),
+      }),
+      baz: new FieldArray([new Field({ value: "value3" })]),
+      foo: new Field({ value: "value1" }),
+    });
+
+    t.deepEqual(form.value, {
       bar: {
         name: "value2",
       },
@@ -116,27 +119,31 @@ describe("FormGroup", () => {
     t.equal(form.disabled, true);
   });
 
-  it("should not submit disabled fields", () => {
+  it("should not include disabled fields", () => {
     const form = new FormGroup({
       bar: new FieldArray([], { disabled: true }),
       baz: new FormGroup({}, { disabled: true }),
       foo: new Field({ disabled: true }),
     });
 
-    t.deepEqual(form.submit(), {});
+    t.deepEqual(form.value, {});
   });
 
-  it("should submit empty object if disabled", () => {
-    const form = new FormGroup({
-      foo: new Field(),
-    }, { disabled: true });
-    t.deepEqual(form.submit(), {});
+  it("should return empty object if disabled", () => {
+    const form = new FormGroup(
+      {
+        foo: new Field(),
+      },
+      { disabled: true },
+    );
+    t.deepEqual(form.value, {});
   });
 
   it("should skip disabled fields in validation", () => {
-    const field = new Field("foo", {
+    const field = new Field({
+      value: "foo",
       disabled: true,
-      validator: isHello,
+      sync: [isHello],
     });
     field.setValue("nope");
 
@@ -146,21 +153,13 @@ describe("FormGroup", () => {
       foo: field,
     });
 
-    t.equal(form.valid, true);
+    t.equal(form.status, FieldStatus.VALID);
   });
 
-  it("should set validating", () => {
-    const form = new FormGroup({});
-    form.setValidating(true);
-    t.equal(form.validating, true);
-
-    form.setValidating(false);
-    t.equal(form.validating, false);
-  });
-
-  it("should set validating flag", () => {
-    const field = new Field("foo", {
-      validator: asyncIsHello,
+  it("should set validating flag", async () => {
+    const field = new Field({
+      value: "foo",
+      async: [asyncIsHello],
     });
 
     const form = new FormGroup({
@@ -169,11 +168,11 @@ describe("FormGroup", () => {
       foo: field,
     });
 
-    field.setValue("nope", true);
+    field.setValue("nope");
     const p = form.validate();
-    t.equal(form.validating, true);
-    return p.then(() => {
-      t.equal(form.validating, false);
-    });
+    t.equal(form.status, FieldStatus.PENDING);
+
+    await p;
+    t.equal(form.status, FieldStatus.INVALID);
   });
 });
