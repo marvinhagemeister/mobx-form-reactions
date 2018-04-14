@@ -10,5 +10,5 @@ src/
 .travis.yml
 .gitignore
 .babelrc
-tsconfig.json
+tsconfig.*
 tslint.json

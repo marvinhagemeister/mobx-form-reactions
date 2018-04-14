@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "es2015",
+    "outDir": "dist/es/",
+    "declaration": true,
+    "declarationDir": "dist/types/"
+  }
+}
