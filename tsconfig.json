@@ -1,19 +1,15 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es6",
-    "noImplicitAny": true,
-    "strictNullChecks": true,
+    "target": "es2015",
+    "strict": true,
     "sourceMap": true,
     "pretty": true,
+    "noUnusedLocals": true,
     "declaration": false,
-    "outDir": "lib/",
+    "outDir": "dist/cjs/",
     "experimentalDecorators": true
   },
-  "exclude": [
-    "node_modules"
-  ],
-  "files": [
-    "./src/index.ts"
-  ]
+  "exclude": ["node_modules"],
+  "files": ["./src/index.ts"]
 }

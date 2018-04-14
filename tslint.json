@@ -1,19 +1,6 @@
 {
-  "extends": "tslint:latest",
+  "extends": "tslint-config-sevenval",
   "rules": {
-    "member-access": [
-      false
-    ],
-    "arrow-parens": false,
-    "interface-name": [
-      false
-    ],
-    "no-string-literal": false,
-    "ordered-imports": [
-      false
-    ],
-    "variable-name": [
-      false
-    ]
+    "array-type": false
   }
 }
