@@ -3,7 +3,7 @@ import { toJS } from "mobx";
 import { FieldStatus } from "../shapes";
 import { Field } from "../Field";
 import { SyncValidateFn, AsyncValidateFn } from "..";
-import { isHello } from "./helpers";
+import { isHello, delay } from "./helpers";
 
 describe("Field", () => {
   it("should set options", () => {
@@ -36,9 +36,9 @@ describe("Field", () => {
   });
 
   it("should validate asynchronously", async () => {
-    const fn: AsyncValidateFn<Field> = field => {
+    const fn: AsyncValidateFn<Field> = x => {
       return new Promise(res =>
-        setTimeout(() => res(field.value !== "hello" ? "nope" : undefined), 0),
+        setTimeout(() => res(x.value !== "hello" ? "nope" : undefined), 0),
       );
     };
 
@@ -92,5 +92,18 @@ describe("Field", () => {
     await field.validate();
 
     t.equal(field.status, FieldStatus.INVALID);
+  });
+
+  it("should set status properly", async () => {
+    const f = new Field();
+    t.equal(f.status, FieldStatus.VALID);
+
+    const f2 = new Field({ disabled: true });
+    t.equal(f2.status, FieldStatus.VALID);
+
+    const f3 = new Field({ async: [() => delay(100) as any] });
+    const p = f3.validate();
+    t.equal(f3.status, FieldStatus.PENDING);
+    await p;
   });
 });

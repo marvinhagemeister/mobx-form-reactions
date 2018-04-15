@@ -1,3 +1,8 @@
+import {
+  CancelController,
+  AbortedErrorMsg,
+  throwIfAborted,
+} from "@marvinh/cancel-token";
 import { AbstractFormControl } from "./shapes";
 
 export type SyncValidateFn<T> = (item: T) => string | undefined;
@@ -13,6 +18,7 @@ export class Validator<T extends AbstractFormControl> {
   sync: SyncValidateFn<T>[];
   async: AsyncValidateFn<T>[];
   bailFirstError: boolean;
+  private controller = new CancelController();
 
   constructor({
     sync = [],
@@ -24,7 +30,10 @@ export class Validator<T extends AbstractFormControl> {
     this.bailFirstError = bailFirstError;
   }
 
-  run(control: T): Promise<boolean> {
+  async run(control: T): Promise<void> {
+    this.controller.abort();
+    const controller = (this.controller = new CancelController());
+
     control.errors = [];
 
     if (this.sync.length > 0) {
@@ -33,29 +42,31 @@ export class Validator<T extends AbstractFormControl> {
         if (res !== undefined) {
           control.errors.push(res);
           if (this.bailFirstError) {
-            return Promise.resolve(false);
+            return;
           }
         }
       }
     }
 
-    let p: Promise<any> = Promise.resolve(undefined);
     if (this.async.length > 0) {
       control._validating = true;
-      for (const fn of this.async) {
-        p = p.then(() => {
+      try {
+        for (const fn of this.async) {
           if (this.bailFirstError && control.errors.length > 0) return;
+          const res = await fn(control);
+          throwIfAborted(controller.signal);
 
-          return fn(control).then(res => {
-            if (res !== undefined) control.errors.push(res);
-          });
-        });
+          if (res !== undefined) {
+            control.errors.push(res);
+          }
+        }
+      } catch (err) {
+        if (err !== AbortedErrorMsg) {
+          throw err;
+        }
+      } finally {
+        control._validating = false;
       }
     }
-
-    return p.then(res => {
-      control._validating = false;
-      return res;
-    });
   }
 }

@@ -33,7 +33,7 @@ export class Field implements AbstractFormControl {
 
   @computed
   get status() {
-    if (this.disabled || this.errors.length === 0) {
+    if (this.disabled || (!this._validating && this.errors.length === 0)) {
       return FieldStatus.VALID;
     } else if (this._validating) {
       return FieldStatus.PENDING;
@@ -62,7 +62,7 @@ export class Field implements AbstractFormControl {
   }
 
   @action.bound
-  validate(): Promise<boolean> {
+  validate() {
     return this.validator.run(this);
   }
 }

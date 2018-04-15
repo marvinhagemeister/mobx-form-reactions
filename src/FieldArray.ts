@@ -48,13 +48,12 @@ export class FieldArray implements AbstractFormControl {
   }
 
   @action.bound
-  validate(): Promise<boolean> {
+  validate(): Promise<void> {
     this._validating = true;
 
     const p = Promise.all(this.fields.map(field => field.validate()));
-    return p.then(() => this.validator.run(this)).then(result => {
+    return p.then(() => this.validator.run(this)).then(() => {
       this._validating = false;
-      return this.status === FieldStatus.VALID;
     });
   }
 
