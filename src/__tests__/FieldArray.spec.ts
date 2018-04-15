@@ -4,7 +4,7 @@ import { asyncIsHello, isHello } from "./helpers";
 import { FieldArray } from "../FieldArray";
 import { FormGroup } from "../FormGroup";
 import { Field } from "../Field";
-import { FieldStatus } from "..";
+import { FieldStatus, Validator } from "..";
 
 describe("FieldArray", () => {
   it("should add fields via constructor", () => {
@@ -43,7 +43,10 @@ describe("FieldArray", () => {
   });
 
   it("should reset itself and fields", async () => {
-    const foo = new Field({ sync: [isHello], value: "hello" });
+    const foo = new Field({
+      validator: new Validator({ sync: [isHello] }),
+      value: "hello",
+    });
     const form = new FieldArray();
     form.push(foo);
 
@@ -94,7 +97,10 @@ describe("FieldArray", () => {
   });
 
   it("should skip fields in validation if disabled", () => {
-    const field = new Field({ value: "foo", sync: [isHello] });
+    const field = new Field({
+      value: "foo",
+      validator: new Validator({ sync: [isHello] }),
+    });
     const form = new FieldArray([field, new Field()]);
 
     field.setValue("no");
@@ -104,9 +110,14 @@ describe("FieldArray", () => {
   });
 
   it("should run validator", async () => {
-    const field = new Field({ value: "foo", sync: [isHello] });
+    const field = new Field({
+      value: "foo",
+      validator: new Validator({ sync: [isHello] }),
+    });
     const form = new FieldArray([field, new Field()], {
-      sync: [group => isHello(group.fields[0] as Field)],
+      validator: new Validator({
+        sync: [group => isHello(group.fields[0] as Field)],
+      }),
     });
 
     await form.validate();
@@ -121,12 +132,16 @@ describe("FieldArray", () => {
   it("should set validating flag", async () => {
     const field = new Field({
       value: "hello",
-      async: [asyncIsHello],
+      validator: new Validator({
+        async: [asyncIsHello],
+      }),
     });
 
     const field2 = new Field({
       value: "hello",
-      async: [asyncIsHello],
+      validator: new Validator({
+        async: [asyncIsHello],
+      }),
     });
 
     const form = new FieldArray([field, field2]);
@@ -144,16 +159,20 @@ describe("FieldArray", () => {
   it("should set validating flag if validator is present", async () => {
     const field = new Field({
       value: "foo",
-      async: [asyncIsHello],
+      validator: new Validator({
+        async: [asyncIsHello],
+      }),
     });
 
     const form = new FieldArray([field], {
-      sync: [
-        group =>
-          group.fields.length !== 0 && group.fields[0].value !== "hello"
-            ? "hello"
-            : undefined,
-      ],
+      validator: new Validator({
+        sync: [
+          group =>
+            group.fields.length !== 0 && group.fields[0].value !== "hello"
+              ? "hello"
+              : undefined,
+        ],
+      }),
     });
 
     await field.setValue("nope");

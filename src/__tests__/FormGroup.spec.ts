@@ -4,7 +4,7 @@ import { asyncIsHello, isHello } from "./helpers";
 import { Field } from "../Field";
 import { FormGroup } from "../FormGroup";
 import { FieldArray } from "../FieldArray";
-import { FieldStatus, AsyncValidateFn } from "..";
+import { FieldStatus, AsyncValidateFn, Validator } from "..";
 
 describe("FormGroup", () => {
   it("should initialize via constructor", () => {
@@ -18,7 +18,9 @@ describe("FormGroup", () => {
       {},
       {
         disabled: true,
-        sync: [(value: any) => undefined],
+        validator: new Validator({
+          sync: [(value: any) => undefined],
+        }),
       },
     );
 
@@ -35,7 +37,7 @@ describe("FormGroup", () => {
 
   it("should return invalid if one field is invalid", async () => {
     const fa = new Field();
-    const fb = new Field({ sync: [isHello] });
+    const fb = new Field({ validator: new Validator({ sync: [isHello] }) });
     const form = new FormGroup({ fa, fb });
 
     fb.setValue("yes");
@@ -53,7 +55,7 @@ describe("FormGroup", () => {
   });
 
   it("should reset the FormGroup", async () => {
-    const foo = new Field({ sync: [isHello] });
+    const foo = new Field({ validator: new Validator({ sync: [isHello] }) });
     const form = new FormGroup({ foo });
 
     foo.setValue("nope");
@@ -75,7 +77,10 @@ describe("FormGroup", () => {
       new Promise(res => setTimeout(res, 10));
 
     const foo = new Field();
-    const form = new FormGroup({ foo }, { async: [validator] });
+    const form = new FormGroup(
+      { foo },
+      { validator: new Validator({ async: [validator] }) },
+    );
 
     t.equal(form.status, FieldStatus.VALID);
     foo.setValue("");
@@ -143,7 +148,7 @@ describe("FormGroup", () => {
     const field = new Field({
       value: "foo",
       disabled: true,
-      sync: [isHello],
+      validator: new Validator({ sync: [isHello] }),
     });
     field.setValue("nope");
 
@@ -159,7 +164,7 @@ describe("FormGroup", () => {
   it("should set validating flag", async () => {
     const field = new Field({
       value: "foo",
-      async: [asyncIsHello],
+      validator: new Validator({ async: [asyncIsHello] }),
     });
 
     const form = new FormGroup({

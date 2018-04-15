@@ -2,7 +2,7 @@ import * as t from "assert";
 import { toJS } from "mobx";
 import { FieldStatus } from "../shapes";
 import { Field } from "../Field";
-import { SyncValidateFn, AsyncValidateFn } from "..";
+import { SyncValidateFn, AsyncValidateFn, Validator } from "..";
 import { isHello, delay } from "./helpers";
 
 describe("Field", () => {
@@ -21,7 +21,7 @@ describe("Field", () => {
   it("should validate synchronously", async () => {
     const field = new Field({
       value: "foo",
-      sync: [isHello],
+      validator: new Validator({ sync: [isHello] }),
     });
 
     field.setValue("nope");
@@ -44,7 +44,7 @@ describe("Field", () => {
 
     const field = new Field({
       value: "foo",
-      async: [fn],
+      validator: new Validator({ async: [fn] }),
     });
 
     field.setValue("nope");
@@ -88,7 +88,10 @@ describe("Field", () => {
   });
 
   it("should validate defaultValue", async () => {
-    const field = new Field({ value: "foo", sync: [isHello] });
+    const field = new Field({
+      value: "foo",
+      validator: new Validator({ sync: [isHello] }),
+    });
     await field.validate();
 
     t.equal(field.status, FieldStatus.INVALID);
@@ -101,7 +104,9 @@ describe("Field", () => {
     const f2 = new Field({ disabled: true });
     t.equal(f2.status, FieldStatus.VALID);
 
-    const f3 = new Field({ async: [() => delay(100) as any] });
+    const f3 = new Field({
+      validator: new Validator({ async: [() => delay(100) as any] }),
+    });
     const p = f3.validate();
     t.equal(f3.status, FieldStatus.PENDING);
     await p;

@@ -1,26 +1,24 @@
 import { action, computed, observable } from "mobx";
 import { AbstractFormControl, ControlOptions, FieldStatus } from "./shapes";
 import { getStatus } from "./utils";
-import { Validator } from "./Validator";
+import { Validator, IValidator } from "./Validator";
 
 export class FieldArray implements AbstractFormControl {
-  private validator: Validator<FieldArray>;
   @observable disabled: boolean;
   @observable _validating: boolean = false;
   @observable fields: AbstractFormControl[] = [];
   @observable errors: string[] = [];
+  private validator: IValidator<FieldArray>;
 
   constructor(
     fields: AbstractFormControl[] = [],
     {
       disabled = false,
-      sync,
-      async,
-      bailFirstError,
+      validator = new Validator(),
     }: ControlOptions<FieldArray> = {},
   ) {
     this.disabled = disabled;
-    this.validator = new Validator({ sync, async, bailFirstError });
+    this.validator = validator;
     this.push(...fields);
   }
 

@@ -1,4 +1,4 @@
-import { Field, FormGroup } from "../src";
+import { Field, FormGroup, Validator } from "../src";
 
 interface PasswordFields {
   password: Field;
@@ -16,7 +16,7 @@ const form = new FormGroup(
     confirmPassword: new Field(),
     password: new Field(),
   },
-  { sync: [matchPasswords] },
+  { validator: new Validator({ sync: [matchPasswords] }) },
 );
 
 export default form;

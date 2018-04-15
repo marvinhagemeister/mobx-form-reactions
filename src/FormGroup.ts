@@ -1,10 +1,10 @@
 import { action, computed, observable } from "mobx";
 import { AbstractFormControl, ControlOptions, FieldStatus } from "./shapes";
 import { getStatus } from "./utils";
-import { Validator } from "./Validator";
+import { Validator, IValidator } from "./Validator";
 
 export class FormGroup<T extends object> implements AbstractFormControl {
-  private validator: Validator<FormGroup<T>>;
+  private validator: IValidator<FormGroup<T>>;
   @observable disabled: boolean = false;
   @observable errors: string[] = [];
   @observable fields: T;
@@ -12,10 +12,13 @@ export class FormGroup<T extends object> implements AbstractFormControl {
 
   constructor(
     fields: T,
-    { sync, async, disabled = false }: ControlOptions<FormGroup<T>> = {},
+    {
+      validator = new Validator(),
+      disabled = false,
+    }: ControlOptions<FormGroup<T>> = {},
   ) {
     this.fields = fields;
-    this.validator = new Validator({ sync, async });
+    this.validator = validator;
     this.disabled = disabled;
   }
 

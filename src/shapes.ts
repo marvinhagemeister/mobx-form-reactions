@@ -1,4 +1,4 @@
-import { ValidatorOptions } from "./Validator";
+import { IValidator } from "./Validator";
 
 export enum FieldStatus {
   VALID = "valid",
@@ -17,7 +17,7 @@ export interface AbstractFormControl {
   setDisabled(value: boolean): void;
 }
 
-export interface ControlOptions<T extends AbstractFormControl>
-  extends ValidatorOptions<T> {
+export interface ControlOptions<T extends AbstractFormControl> {
   disabled?: boolean;
+  validator?: IValidator<T>;
 }

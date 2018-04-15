@@ -1,6 +1,6 @@
 import { action, computed, observable } from "mobx";
 import { AbstractFormControl, ControlOptions, FieldStatus } from "./shapes";
-import { Validator } from "./Validator";
+import { Validator, IValidator } from "./Validator";
 
 export type FieldValue = string | number | boolean | null;
 
@@ -15,17 +15,15 @@ export class Field implements AbstractFormControl {
   @observable _validating: boolean = false;
   @observable value: FieldValue;
 
-  private validator: Validator<Field>;
+  private validator: IValidator<Field>;
   private defaultValue: FieldValue;
 
   constructor({
     value = null,
     disabled = false,
-    async,
-    bailFirstError,
-    sync,
+    validator = new Validator(),
   }: FieldOptions = {}) {
-    this.validator = new Validator({ async, sync, bailFirstError });
+    this.validator = validator;
     this.defaultValue = value;
     this.value = value;
     this.disabled = disabled;
