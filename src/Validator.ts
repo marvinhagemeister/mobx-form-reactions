@@ -14,7 +14,11 @@ export interface ValidatorOptions<T> {
   bailFirstError?: boolean;
 }
 
-export class Validator<T extends AbstractFormControl> {
+export interface IValidator<T extends AbstractFormControl> {
+  run(control: T): Promise<void>;
+}
+
+export class Validator<T extends AbstractFormControl> implements IValidator<T> {
   sync: SyncValidateFn<T>[];
   async: AsyncValidateFn<T>[];
   bailFirstError: boolean;
