@@ -61,15 +61,15 @@ export class FormGroup<T extends object> implements AbstractFormControl {
   }
 
   @action.bound
-  validate(): Promise<boolean> {
+  validate(): Promise<void> {
     this.errors = [];
     this._validating = true;
 
     const p = Promise.all(this.allFields.map(field => field.validate()));
     return p.then(res => {
-      return this.validator
-        .run(this)
-        .then(() => this.status === FieldStatus.VALID);
+      return this.validator.run(this).then(() => {
+        this._validating = false;
+      });
     });
   }
 }

@@ -109,13 +109,13 @@ describe("FieldArray", () => {
       sync: [group => isHello(group.fields[0] as Field)],
     });
 
-    const valid = await form.validate();
-    t.equal(valid, false);
+    await form.validate();
+    t.equal(form.status, FieldStatus.INVALID);
 
     await field.setValue("hello");
 
-    const formValid = await form.validate();
-    t.equal(formValid, true);
+    await form.validate();
+    t.equal(form.status, FieldStatus.VALID);
   });
 
   it("should set validating flag", async () => {
