@@ -1,165 +1,147 @@
 # MobX form reactions
 
-`mobx-form-reactions` is a model-based form library for mobx. It was written for complex form needs
-which weren't satisfied with existing libraries (nested fields, fields depending upon each other,...).
-It works great in combination with SPA-Frameworks like [React](https://github.com/facebook/react/) or
-[Angular 2](https://angular.io/).
-
-The basic idea is that form state should be derived from a model. Form state is more similar to display
-state and should only be synched to the model when the form is submitted.
+`@marvinh/mobx-form-reactions` is an advanced form library for mobx. It was written for
+complex form needs, such as support for nested fields, field dependencies,
+field dependencies across different forms and first class support for
+asynchronous validators.
 
 ## Installation
 
 ```bash
-# npm
-npm install mobx-form-reactions
-
-# yarn
-yarn add mobx-form-reactions
+npm install @marvinh/mobx-form-reactions
+# or
+yarn add @marvinh/mobx-form-reactions
 ```
 
 ## Usage
 
-Simple usage without synching with models.
+There are 3 basic modesl which are the building blocks for any form:
+
+* `Field` - A simple input field
+* `FormGroup` - A group of fields stored as an object
+* `FieldArray` - Holds a list of fields/groups where the order is important or children can be dynamically added/removed.
+
+Additional classes:
+
+* `BooleanField`- Abstraction for toggles/checkboxes
+
+### API
 
 ```ts
-import { Field, FormGroup, required } from "mobx-form-reactions";
+// Each class implements this interface
+interface AbstractControl {
+  /** List of error strings */
+  errors: string[];
+  disabled: boolean;
+  /** The current state of the field */
+  status: "valid" | "pending" | "invalid";
+  setDisabled(disabled: boolean): void;
+  /** Reset the field */
+  reset(): Promise<void>;
+  /** Validates the field value and mutates the current instance */
+  validate(): Promise<void>;
+}
 
-const name = new Field({ validator: required });
+interface Field extends AbstractControl {
+  /** The value of a field. `null` means empty */
+  value: boolean | string | number | null;
+  /** Note: setting a value doesn't trigger validation automatically */
+  setValue(value: boolean | string | number | null): void;
+}
+
+interface FormGroup extends AbstractControl {
+  /**
+   * Get all child field values. Example:
+   *
+   * {
+   *   name: "John Doe",
+   *   age: 25,
+   * }
+   */
+  value: Record<string, any>;
+}
+
+interface FieldArray extends AbstractControl {
+  /**
+   * Get all child field values. Example:
+   *
+   * [
+   *   { name: "Jon Doe" },
+   *   { name: "Peter" },
+   * ]
+   */
+  value: any[];
+}
+```
+
+### Validators
+
+Each class can have it's own validators. These functions can be `sync` or
+`async`. They return either a `string` if the field is invalid or `undefined`in
+case if valid.
+
+```ts
+import { Validator, Field } from "@marvinh/mobx-form-reactions";
+
+// Create a validation functions
+const isHello = (field: Field) => field.value !== "hello" ? "hello" : undefined;
+
+const validator = new Validator({
+  bailFirstError: true,
+  // synchronous validators are run before async for performance reasons
+  sync: [isHello]
+  // async functions are automatically cancelled when something changed.
+  // This means that race conditions can't happen
+  async: [somethingAsync]
+})
+
+// Create a field and assign our validator
+const field = new Field({ validator });
+```
+
+### Examples
+
+Simple form:
+
+```ts
+import {
+  Field,
+  FormGroup,
+  Validator,
+  required,
+} from "@marvinh/mobx-form-reactions";
+
+const nameValidator = new Validator({ sync: [required] });
+
+const name = new Field({ validator: nameValidator });
 const note = new Field();
 const form = new FormGroup({ name, note });
 
 note.value = "my user input";
 
 // Form is still marked as invalid, because name isn't set
-console.log(form.valid); // false
-console.log(name.valid); // false
+console.log(form.status); // invalid
+console.log(name.status); // invalid
 
 name.value = "John Doe";
-console.log(form.valid); // true
+console.log(form.status); // valid
 ```
 
 Fields with a default value:
 
 ```ts
-import { Field, FormGroup, required } from "mobx-form-reactions";
+import { Field, required } from "@marvinh/mobx-form-reactions";
 
-const name = new Field("John Doe", { validator: required });
+const nameValidator = new Validator({ sync: [required] });
 
+const name = new Field({ value: "John Doe", validator: nameValidator });
 console.log(name.value); // Logs: "John Doe"
 ```
 
 ### Examples
 
-- [Form control dependencies](examples/)
-- [Form validation dependencies](examples/)
-
-### Connecting validations to form fields
-
-For single `Validators` it is as easy as passing the validator option:
-
-```ts
-import { Field, required } from "mobx-form-reactions";
-
-const field = new Field({ validator: required });
-```
-
-Complex validations can be easily combined into a single `Validator`:
-
-```ts
-import { Field, combine, minLength, required } from "mobx-form-reactions";
-
-const validator = combine(required, minLength(8));
-const passwordField = new Field({ validator });
-```
-
-### Submitting
-
-```ts
-import { Field, FormGroup } from "mobx-form-reactions";
-
-const form = new FormGroup({
-  name: new Field("John"),
-  surname: new Field("Doe"),
-});
-
-// Validation returns promise because validation may be async
-form.validate().then(isValid => {
-  if (isValid) {
-    const json = form.submit();
-    // Do somthing with our json
-  } else {
-    // Display error message
-  }
-});
-```
-
-### Custom Validations
-
-Validations are simple functions which can be pure or have side-effects (think of having to verify the value against a
-backend source). This makes them a no brainer to test, compose and reuse across different `Fields`.
-
-Simple synchronous validation:
-
-```ts
-const isHello = value => value !== "hello" ? { hello: true } : {};
-```
-
-If you need multiple error messages simply add new properties to the errors object:
-
-```ts
-import { combine } from "mobx-form-reactions";
-const startsWithA = value => value[0] !== "A" ? { startsWithA: true } : {};
-const containsNumber = value => !/\d/.test(value) ? { containsNumber: true } : {};
-
-const validate = combine(startsWithA, containsNumber);
-
-console.log(validate("hello world"));
-// Logs:
-// {
-//   startsWithA: true,
-//   containsNumber: true,
-// }
-```
-
-### Asynchronous Validation
-
-Asynchronous validators work similar to synchronous one except that they return a `Promise`.
-
-```ts
-import { combineAsync } from "mobx-form-reactions";
-
-function checkApi(value: any) {
-  return fetch("https://example.com/my-json-api")
-    .then(res => res.json())
-    .then(res => {
-      if (res.status > 300) {
-        return { response: res.status };
-      }
-
-      return {};
-    });
-}
-```
-
-Combine asynchronous validations
-
-```ts
-const validate = combineAsync(checkFoo, checkApi);
-
-validate("hello world")
-  .then(res => console.log(res));
-```
-
-They can even be combined with synchronous validation.
-
-```ts
-const status = res => res.status !== 200 ? ["failed"] : [];
-const validate = combineAsync(checkFoo, checkApi, status);
-
-validate("hello world")
-  .then(res => console.log(res));
-```
+* [Form control dependencies](examples/)
+* [Form validation dependencies](examples/)
 
 ### FieldArrays (dynamic fields)
 
@@ -169,18 +151,17 @@ add an abritary number of persons. The `FieldArray` class is made for
 this exact purpose.
 
 ```ts
-import { Field, FormGroup, FieldArray } from "mobx-form-reactions";
+import { Field, FormGroup, FieldArray } from "@marvinh/mobx-form-reactions";
 
 const createPerson = () =>
   new FormGroup({
-    name: new Field("John"),
-    surname: new Field("Doe"),
+    name: new Field(),
+    surname: new Field(),
   });
 
 const form = new FieldArray();
 
-const onBtnClick = form =>
-  form.push(createPerson());
+const onBtnClick = form => form.push(createPerson());
 
 // Let's pretend that the user clicked on a button labeld "add person"
 onBtnClick(form);
@@ -188,15 +169,6 @@ onBtnClick(form);
 console.log(form.fields.length); // Logs: 2
 ```
 
-### Wizards
+## License
 
-tbd
-
-## Architecture
-
-To support complex forms a lot of architectual decisions were made. You can read
-more about the concept of this library here:
-
-- [Template vs Model-based Forms](docs/architecture.md/#template-based-forms-vs-reactivemodel-based-forms)
-- [Why Validators return objects](docs/architecture.md/#why-validators-return-objects)
-- [Compared to other form libraries](docs/architecture.md/#compared-to-other-form-libraries)
+`MIT`, see the [license file](./LICENSE.md).
