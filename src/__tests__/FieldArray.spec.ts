@@ -51,6 +51,7 @@ describe("FieldArray", () => {
     form.push(foo);
 
     foo.setValue("nope");
+    foo.setInitial(false);
     t.equal(foo.initial, false);
 
     await form.validate();

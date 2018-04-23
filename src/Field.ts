@@ -50,8 +50,12 @@ export class Field implements AbstractFormControl {
 
   @action.bound
   setValue(value: FieldValue) {
-    this.initial = false;
     this.value = value;
+  }
+
+  @action.bound
+  setInitial(value: boolean) {
+    this.initial = value;
   }
 
   @action.bound
