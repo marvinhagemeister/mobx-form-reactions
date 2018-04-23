@@ -18,6 +18,14 @@ describe("Field", () => {
     t.equal(field3.value, "foo");
   });
 
+  it("should set initial value", () => {
+    const field = new Field();
+    t.equal(field.initial, true);
+
+    field.setInitial(false);
+    t.equal(field.initial, false);
+  });
+
   it("should validate synchronously", async () => {
     const field = new Field({
       value: "foo",
@@ -31,7 +39,7 @@ describe("Field", () => {
     t.deepEqual(toJS(field.errors), ["hello"]);
 
     field.setValue("hello");
-    field.validate();
+    await field.validate();
     t.equal(field.status, FieldStatus.VALID);
   });
 
@@ -51,15 +59,12 @@ describe("Field", () => {
 
     await field.validate();
     t.equal(field.status, FieldStatus.INVALID);
-    t.equal(field.initial, false);
   });
 
   it("should set value", () => {
     const field = new Field({ value: "foo" });
     field.setValue("hey");
-
     t.equal(field.value, "hey");
-    t.equal(field.initial, false);
   });
 
   it("should get fall back to defaultValue when empty", () => {
@@ -70,6 +75,7 @@ describe("Field", () => {
   it("should reset a field", () => {
     const field = new Field({ value: "foo" });
     field.setValue("baz");
+    field.setInitial(false);
 
     t.equal(field.initial, false);
 
