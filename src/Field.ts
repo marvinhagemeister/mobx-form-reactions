@@ -15,8 +15,8 @@ export class Field implements AbstractFormControl {
   @observable _validating: boolean = false;
   @observable value: FieldValue;
 
-  private validator: IValidator<Field>;
-  private defaultValue: FieldValue;
+  validator: IValidator<Field>;
+  defaultValue: FieldValue;
 
   constructor({
     value = null,

@@ -4,7 +4,7 @@ import { getStatus } from "./utils";
 import { Validator, IValidator } from "./Validator";
 
 export class FormGroup<T extends object> implements AbstractFormControl {
-  private validator: IValidator<FormGroup<T>>;
+  validator: IValidator<FormGroup<T>>;
   @observable disabled: boolean = false;
   @observable errors: string[] = [];
   @observable fields: T;
