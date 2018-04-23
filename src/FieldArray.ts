@@ -8,7 +8,7 @@ export class FieldArray implements AbstractFormControl {
   @observable _validating: boolean = false;
   @observable fields: AbstractFormControl[] = [];
   @observable errors: string[] = [];
-  private validator: IValidator<FieldArray>;
+  validator: IValidator<FieldArray>;
 
   constructor(
     fields: AbstractFormControl[] = [],
