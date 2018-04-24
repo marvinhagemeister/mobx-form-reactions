@@ -1,10 +1,12 @@
 import * as t from "assert";
-import { toJS } from "mobx";
+import { toJS, configure } from "mobx";
 import { asyncIsHello, isHello } from "./helpers";
 import { FieldArray } from "../FieldArray";
 import { FormGroup } from "../FormGroup";
 import { Field } from "../Field";
 import { FieldStatus, Validator } from "..";
+
+configure({ enforceActions: true });
 
 describe("FieldArray", () => {
   it("should add fields via constructor", () => {
