@@ -1,9 +1,11 @@
 import * as t from "assert";
-import { toJS } from "mobx";
+import { toJS, configure } from "mobx";
 import { FieldStatus } from "../shapes";
 import { Field } from "../Field";
 import { SyncValidateFn, AsyncValidateFn, Validator } from "..";
 import { isHello, delay } from "./helpers";
+
+configure({ enforceActions: true });
 
 describe("Field", () => {
   it("should set options", () => {

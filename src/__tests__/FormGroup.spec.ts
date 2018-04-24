@@ -1,10 +1,12 @@
 import * as t from "assert";
-import { toJS } from "mobx";
+import { toJS, configure } from "mobx";
 import { asyncIsHello, isHello } from "./helpers";
 import { Field } from "../Field";
 import { FormGroup } from "../FormGroup";
 import { FieldArray } from "../FieldArray";
 import { FieldStatus, AsyncValidateFn, Validator } from "..";
+
+configure({ enforceActions: true });
 
 describe("FormGroup", () => {
   it("should initialize via constructor", () => {
