@@ -35,6 +35,18 @@ describe("FormGroup", () => {
     t.equal(form.status, FieldStatus.VALID);
   });
 
+  it("should track revision", () => {
+    const f = new Field();
+    const f2 = new Field();
+    const form = new FormGroup({ foo: f, bar: f2 });
+
+    f.setValue("123");
+    t.equal(form.revision, 1);
+
+    f2.setValue("bob");
+    t.equal(form.revision, 2);
+  });
+
   it("should return invalid if one field is invalid", async () => {
     const fa = new Field();
     const fb = new Field({ validator: new Validator({ sync: [isHello] }) });

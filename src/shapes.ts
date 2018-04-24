@@ -12,6 +12,7 @@ export interface AbstractFormControl {
   _validating: boolean;
   status: FieldStatus;
   value: any;
+  revision: number;
   reset(): Promise<void>;
   validate(): Promise<void>;
   setDisabled(value: boolean): void;

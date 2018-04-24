@@ -23,6 +23,11 @@ export class FormGroup<T extends object> implements AbstractFormControl {
   }
 
   @computed
+  get revision() {
+    return this.allFields.reduce((rev, x) => (rev += x.revision), 0);
+  }
+
+  @computed
   get status() {
     if (this.errors.length > 0) return FieldStatus.INVALID;
     if (this._validating) return FieldStatus.PENDING;
