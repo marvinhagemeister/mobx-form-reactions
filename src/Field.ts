@@ -6,6 +6,7 @@ export type FieldValue = string | number | boolean | null;
 
 export interface FieldOptions extends ControlOptions<Field> {
   value?: FieldValue;
+  revision?: number;
 }
 
 export class Field implements AbstractFormControl {
@@ -14,6 +15,7 @@ export class Field implements AbstractFormControl {
   @observable disabled: boolean = false;
   @observable _validating: boolean = false;
   @observable value: FieldValue;
+  @observable revision: number = 0;
 
   validator: IValidator<Field>;
   defaultValue: FieldValue;
@@ -21,12 +23,14 @@ export class Field implements AbstractFormControl {
   constructor({
     value = null,
     disabled = false,
+    revision = 0,
     validator = new Validator(),
   }: FieldOptions = {}) {
     this.validator = validator;
     this.defaultValue = value;
     this.value = value;
     this.disabled = disabled;
+    this.revision = revision;
   }
 
   @computed
@@ -45,12 +49,14 @@ export class Field implements AbstractFormControl {
     this.value = this.defaultValue;
     this.errors = [];
     this._validating = false;
+    this.revision = 0;
     return this.validate().then(() => undefined);
   }
 
   @action.bound
   setValue(value: FieldValue) {
     this.value = value;
+    this.revision++;
   }
 
   @action.bound

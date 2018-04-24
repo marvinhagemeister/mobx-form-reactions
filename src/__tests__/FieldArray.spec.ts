@@ -86,6 +86,18 @@ describe("FieldArray", () => {
     t.deepEqual(form.value, []);
   });
 
+  it("should track revision", () => {
+    const f = new Field();
+    const f2 = new Field();
+    const form = new FieldArray([f, f2]);
+
+    f.setValue("123");
+    t.equal(form.revision, 1);
+
+    f2.setValue(123);
+    t.equal(form.revision, 2);
+  });
+
   it("should check if fields are disabled", () => {
     const form = new FieldArray([
       new Field(),

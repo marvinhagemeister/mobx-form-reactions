@@ -16,6 +16,9 @@ describe("Field", () => {
     const field3 = new Field({ value: "foo", disabled: true });
     t.equal(field3.disabled, true);
     t.equal(field3.value, "foo");
+
+    const field4 = new Field({ revision: 10 });
+    t.equal(field4.revision, 10);
   });
 
   it("should set initial value", () => {
@@ -83,6 +86,13 @@ describe("Field", () => {
     t.equal(field.value, "foo");
     t.equal(field.status, FieldStatus.VALID);
     t.equal(field.initial, true);
+    t.equal(field.revision, 0);
+  });
+
+  it("should track revision", () => {
+    const f = new Field();
+    f.setValue("123");
+    t.equal(f.revision, 1);
   });
 
   it("should set disabled", () => {
