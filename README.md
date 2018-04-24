@@ -32,6 +32,17 @@ Additional classes:
 interface AbstractControl {
   /** List of error strings */
   errors: string[];
+  /**
+   * Incremented each time a field is changed. Useful for dirty-checking or
+   * syncing requirements
+   */
+  revision: number;
+  /**
+   * Control is marked as being pristine. This is usually used to customize
+   * the behaviour when errors should be shown the first time
+   */
+  initial: boolean;
+  /** Marks control as being disabled */
   disabled: boolean;
   /** The current state of the field */
   status: "valid" | "pending" | "invalid";

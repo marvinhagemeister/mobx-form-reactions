@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.1.0
+
+* Add back support for `enforceActions` (previously called `useStrict()` in mobx)
+* Add support for revisions for forms. This is great for dirty checking/syncing
+* Make `validator`-property on `Field` non-private to allow setting Validators with circular references
+* Add setter for `initial`-property and don't set it to false upon calling `setValue`. This is needed because ux requirements differ quite a bit about when a validation error should be shown to the user the first time
+
 ## 4.0.0
 
 * **Breaking:** Rename package to `@marvinh/mobx-form-reactions`
