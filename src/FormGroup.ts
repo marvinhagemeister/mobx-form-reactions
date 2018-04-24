@@ -23,6 +23,11 @@ export class FormGroup<T extends object> implements AbstractFormControl {
   }
 
   @computed
+  get initial() {
+    return this.allFields.every(x => x.initial);
+  }
+
+  @computed
   get revision() {
     return this.allFields.reduce((rev, x) => (rev += x.revision), 0);
   }

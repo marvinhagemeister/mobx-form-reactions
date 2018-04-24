@@ -23,6 +23,11 @@ export class FieldArray implements AbstractFormControl {
   }
 
   @computed
+  get initial() {
+    return this.fields.every(x => x.initial);
+  }
+
+  @computed
   get revision() {
     return this.fields.reduce((rev, x) => (rev += x.revision), 0);
   }

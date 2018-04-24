@@ -14,6 +14,21 @@ describe("FieldArray", () => {
     t.equal(form.fields.length, 1);
   });
 
+  it("should track initial state", () => {
+    const f1 = new Field();
+    const f2 = new Field();
+    const form = new FieldArray([f1, f2]);
+
+    t.equal(form.initial, true);
+
+    f1.setInitial(false);
+    t.equal(form.initial, false);
+
+    f1.setInitial(true);
+    f2.setInitial(false);
+    t.equal(form.initial, false);
+  });
+
   it("should push new elements", () => {
     const foo = new Field();
     const form = new FieldArray();

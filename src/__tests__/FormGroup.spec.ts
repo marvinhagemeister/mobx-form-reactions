@@ -29,6 +29,21 @@ describe("FormGroup", () => {
     t.equal(form2.disabled, true);
   });
 
+  it("should track initial", () => {
+    const fa = new Field();
+    const fb = new Field();
+    const form = new FormGroup({ fa, fb });
+
+    t.equal(form.initial, true);
+
+    fa.setInitial(false);
+    t.equal(form.initial, false);
+
+    fa.setInitial(true);
+    fb.setInitial(false);
+    t.equal(form.initial, false);
+  });
+
   it("should return valid if fields are valid", () => {
     const fa = new Field();
     const fb = new Field();
