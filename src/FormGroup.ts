@@ -14,8 +14,8 @@ export class FormGroup<T extends object> implements AbstractFormControl {
     fields: T,
     {
       validator = new Validator(),
-      disabled = false,
-    }: ControlOptions<FormGroup<T>> = {},
+      disabled = false
+    }: ControlOptions<FormGroup<T>> = {}
   ) {
     this.fields = fields;
     this.validator = validator;
@@ -64,7 +64,9 @@ export class FormGroup<T extends object> implements AbstractFormControl {
 
   @action.bound
   reset() {
-    for (const field of this.allFields) {
+    // tslint:disable-next-line:prefer-for-of
+    for (let i = 0; i < this.allFields.length; i++) {
+      const field = this.allFields[i];
       field.reset();
     }
 
