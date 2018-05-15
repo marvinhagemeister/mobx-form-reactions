@@ -1,5 +1,9 @@
 # Changelog
 
+## next
+
+* Prevent babel from transpiling `for-of` loops with generators.
+
 ## 4.1.0
 
 * Add back support for `enforceActions` (previously called `useStrict()` in mobx)

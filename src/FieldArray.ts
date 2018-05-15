@@ -14,8 +14,8 @@ export class FieldArray implements AbstractFormControl {
     fields: AbstractFormControl[] = [],
     {
       disabled = false,
-      validator = new Validator(),
-    }: ControlOptions<FieldArray> = {},
+      validator = new Validator()
+    }: ControlOptions<FieldArray> = {}
   ) {
     this.disabled = disabled;
     this.validator = validator;
@@ -44,7 +44,9 @@ export class FieldArray implements AbstractFormControl {
     if (this.disabled) return [];
 
     const out = [];
-    for (const field of this.fields) {
+    // tslint:disable-next-line:prefer-for-of
+    for (let i = 0; i < this.fields.length; i++) {
+      const field = this.fields[i];
       if (!field.disabled) out.push(field.value);
     }
     return out;

@@ -1,7 +1,7 @@
 import {
   CancelController,
   AbortedErrorMsg,
-  throwIfAborted,
+  throwIfAborted
 } from "@marvinh/cancel-token";
 import { AbstractFormControl } from "./shapes";
 
@@ -27,7 +27,7 @@ export class Validator<T extends AbstractFormControl> implements IValidator<T> {
   constructor({
     sync = [],
     async = [],
-    bailFirstError = true,
+    bailFirstError = true
   }: ValidatorOptions<T> = {}) {
     this.sync = sync;
     this.async = async;
@@ -41,7 +41,13 @@ export class Validator<T extends AbstractFormControl> implements IValidator<T> {
     control.errors = [];
 
     if (this.sync.length > 0) {
-      for (const fn of this.sync) {
+      // Use a standard for loop, because babel can't transpile it to a for-loop
+      // because of missing type information and will attempt to use a generator
+      // polyfill combined with symbols instead. This always leads to undefined
+      // errors in IE with the cryptic message: `Object expected`.
+      // tslint:disable-next-line:prefer-for-of
+      for (let i = 0; i < this.sync.length; i++) {
+        const fn = this.sync[i];
         const res = fn(control);
         if (res !== undefined) {
           control.errors.push(res);
@@ -55,7 +61,9 @@ export class Validator<T extends AbstractFormControl> implements IValidator<T> {
     if (this.async.length > 0) {
       control._validating = true;
       try {
-        for (const fn of this.async) {
+        // tslint:disable-next-line:prefer-for-of
+        for (let i = 0; i < this.async.length; i++) {
+          const fn = this.async[i];
           if (this.bailFirstError && control.errors.length > 0) return;
           const res = await fn(control);
           throwIfAborted(controller.signal);
