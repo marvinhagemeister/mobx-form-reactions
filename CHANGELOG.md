@@ -1,6 +1,6 @@
 # Changelog
 
-## next
+## 4.1.1
 
 * Prevent babel from transpiling `for-of` loops with generators.
 
