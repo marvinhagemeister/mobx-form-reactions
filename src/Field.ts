@@ -10,10 +10,8 @@ export interface FieldOptions extends ControlOptions<Field> {
 }
 
 export class Field implements AbstractFormControl {
-  @observable errors: string[] = [];
   @observable initial: boolean = true;
   @observable disabled: boolean = false;
-  @observable _validating: boolean = false;
   @observable value: FieldValue;
   @observable revision: number = 0;
 
@@ -35,9 +33,10 @@ export class Field implements AbstractFormControl {
 
   @computed
   get status() {
-    if (this.disabled || (!this._validating && this.errors.length === 0)) {
+    const { pending, errors } = this.validator;
+    if (this.disabled || (!pending && errors.length === 0)) {
       return FieldStatus.VALID;
-    } else if (this._validating) {
+    } else if (pending) {
       return FieldStatus.PENDING;
     }
     return FieldStatus.INVALID;
@@ -47,8 +46,7 @@ export class Field implements AbstractFormControl {
   reset() {
     this.initial = true;
     this.value = this.defaultValue;
-    this.errors = [];
-    this._validating = false;
+    this.validator.reset();
     this.revision = 0;
     return this.validate().then(() => undefined);
   }

@@ -41,7 +41,6 @@ describe("Field", () => {
     await field.validate();
 
     t.equal(field.status, FieldStatus.INVALID);
-    t.deepEqual(toJS(field.errors), ["hello"]);
 
     field.setValue("hello");
     await field.validate();
