@@ -1,8 +1,9 @@
 import {
   CancelController,
   AbortedErrorMsg,
-  throwIfAborted
+  throwIfAborted,
 } from "@marvinh/cancel-token";
+import { observable, action, runInAction } from "mobx";
 import { AbstractFormControl } from "./shapes";
 
 export type SyncValidateFn<T> = (item: T) => string | undefined;
@@ -15,7 +16,10 @@ export interface ValidatorOptions<T> {
 }
 
 export interface IValidator<T extends AbstractFormControl> {
+  errors: string[];
+  pending: boolean;
   run(control: T): Promise<void>;
+  reset(): void;
 }
 
 export class Validator<T extends AbstractFormControl> implements IValidator<T> {
@@ -24,21 +28,34 @@ export class Validator<T extends AbstractFormControl> implements IValidator<T> {
   bailFirstError: boolean;
   private controller = new CancelController();
 
+  @observable pending: boolean = false;
+  @observable errors: string[] = [];
+
   constructor({
     sync = [],
     async = [],
-    bailFirstError = true
+    bailFirstError = true,
   }: ValidatorOptions<T> = {}) {
     this.sync = sync;
     this.async = async;
     this.bailFirstError = bailFirstError;
   }
 
+  @action
+  reset() {
+    this.controller.abort();
+    this.errors = [];
+    this.pending = false;
+  }
+
+  @action
   async run(control: T): Promise<void> {
     this.controller.abort();
+    // Local reference is necessary to avoid the next validation run to overwrite
+    // our cancel signal
     const controller = (this.controller = new CancelController());
 
-    control.errors = [];
+    this.errors = [];
 
     if (this.sync.length > 0) {
       // Use a standard for loop, because babel can't transpile it to a for-loop
@@ -50,7 +67,7 @@ export class Validator<T extends AbstractFormControl> implements IValidator<T> {
         const fn = this.sync[i];
         const res = fn(control);
         if (res !== undefined) {
-          control.errors.push(res);
+          this.errors.push(res);
           if (this.bailFirstError) {
             return;
           }
@@ -59,17 +76,17 @@ export class Validator<T extends AbstractFormControl> implements IValidator<T> {
     }
 
     if (this.async.length > 0) {
-      control._validating = true;
+      this.pending = true;
       try {
         // tslint:disable-next-line:prefer-for-of
         for (let i = 0; i < this.async.length; i++) {
           const fn = this.async[i];
-          if (this.bailFirstError && control.errors.length > 0) return;
+          if (this.bailFirstError && this.errors.length > 0) return;
           const res = await fn(control);
           throwIfAborted(controller.signal);
 
           if (res !== undefined) {
-            control.errors.push(res);
+            this.errors.push(res);
           }
         }
       } catch (err) {
@@ -77,7 +94,7 @@ export class Validator<T extends AbstractFormControl> implements IValidator<T> {
           throw err;
         }
       } finally {
-        control._validating = false;
+        runInAction(() => (this.pending = false));
       }
     }
   }

@@ -6,16 +6,14 @@ import { Validator, IValidator } from "./Validator";
 export class FormGroup<T extends object> implements AbstractFormControl {
   validator: IValidator<FormGroup<T>>;
   @observable disabled: boolean = false;
-  @observable errors: string[] = [];
   @observable fields: T;
-  @observable _validating: boolean = false;
 
   constructor(
     fields: T,
     {
       validator = new Validator(),
-      disabled = false
-    }: ControlOptions<FormGroup<T>> = {}
+      disabled = false,
+    }: ControlOptions<FormGroup<T>> = {},
   ) {
     this.fields = fields;
     this.validator = validator;
@@ -34,8 +32,9 @@ export class FormGroup<T extends object> implements AbstractFormControl {
 
   @computed
   get status() {
-    if (this.errors.length > 0) return FieldStatus.INVALID;
-    if (this._validating) return FieldStatus.PENDING;
+    const { pending, errors } = this.validator;
+    if (pending) return FieldStatus.PENDING;
+    if (errors.length > 0) return FieldStatus.INVALID;
     return getStatus(this.allFields);
   }
 
@@ -70,21 +69,14 @@ export class FormGroup<T extends object> implements AbstractFormControl {
       field.reset();
     }
 
-    this.errors = [];
-    this._validating = false;
+    this.validator.reset();
     return this.validate().then(() => undefined);
   }
 
   @action.bound
   validate(): Promise<void> {
-    this.errors = [];
-    this._validating = true;
-
-    const p = Promise.all(this.allFields.map(field => field.validate()));
-    return p.then(res => {
-      return this.validator.run(this).then(() => {
-        this._validating = false;
-      });
-    });
+    return Promise.all(this.allFields.map(field => field.validate())).then(() =>
+      this.validator.run(this),
+    );
   }
 }

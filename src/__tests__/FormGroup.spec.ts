@@ -1,5 +1,5 @@
 import * as t from "assert";
-import { toJS, configure } from "mobx";
+import { toJS, configure, observe } from "mobx";
 import { asyncIsHello, isHello } from "./helpers";
 import { Field } from "../Field";
 import { FormGroup } from "../FormGroup";
@@ -89,16 +89,16 @@ describe("FormGroup", () => {
 
     foo.setValue("nope");
 
-    const valid = await form.validate();
+    await form.validate();
     t.equal(form.status, FieldStatus.INVALID);
-    t.deepEqual(form.errors, {});
-    t.deepEqual(toJS(foo.errors), ["hello"]);
+    t.deepEqual(form.validator.errors, []);
+    t.deepEqual(toJS(foo.validator.errors), ["hello"]);
 
     await form.reset();
 
     t.equal(form.status, FieldStatus.INVALID);
-    t.deepEqual(form.errors, {});
-    t.deepEqual(foo.errors, []);
+    t.deepEqual(form.validator.errors, {});
+    t.deepEqual(foo.validator.errors, []);
   });
 
   it("should handle pending validation", async () => {
@@ -111,25 +111,21 @@ describe("FormGroup", () => {
       { validator: new Validator({ async: [validator] }) },
     );
 
-    t.equal(form.status, FieldStatus.VALID);
-    foo.setValue("");
-    const p = form.validate();
-    t.equal(form.status, FieldStatus.PENDING);
+    const events: FieldStatus[] = [];
+    observe(form, "status", change => events.push(change.newValue), true);
 
-    await p;
-    t.equal(form.status, FieldStatus.VALID);
+    foo.setValue("");
+    await form.validate();
+
+    t.deepEqual(events, [
+      FieldStatus.VALID,
+      FieldStatus.PENDING,
+      FieldStatus.VALID,
+    ]);
   });
 
   it("should get values", () => {
     const form = new FormGroup({
-      bar: new FormGroup({
-        name: new Field({ value: "value2" }),
-      }),
-      baz: new FieldArray([new Field({ value: "value3" })]),
-      foo: new Field({ value: "value1" }),
-    });
-
-    const form2 = new FormGroup({
       bar: new FormGroup({
         name: new Field({ value: "value2" }),
       }),

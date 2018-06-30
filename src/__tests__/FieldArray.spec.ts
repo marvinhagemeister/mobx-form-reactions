@@ -73,10 +73,10 @@ describe("FieldArray", () => {
 
     await form.validate();
 
-    t.deepEqual(toJS(foo.errors), ["hello"]);
+    t.equal(foo.status, FieldStatus.INVALID);
     form.reset();
 
-    t.deepEqual(toJS(foo.errors), []);
+    t.equal(foo.status, FieldStatus.VALID);
     t.equal(foo.initial, true);
   });
 

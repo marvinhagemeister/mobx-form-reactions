@@ -8,8 +8,6 @@ export enum FieldStatus {
 
 export interface AbstractFormControl {
   disabled: boolean;
-  errors: string[];
-  _validating: boolean;
   status: FieldStatus;
   value: any;
   initial: boolean;

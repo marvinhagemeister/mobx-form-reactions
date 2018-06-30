@@ -1,7 +1,7 @@
 import * as t from "assert";
 import * as sinon from "sinon";
 import { Validator } from "../Validator";
-import { asyncIsHello, delay } from "./helpers";
+import { delay } from "./helpers";
 import { Field } from "../Field";
 import { toJS } from "mobx";
 
@@ -48,7 +48,7 @@ describe("Validator", () => {
     f.setValue("baz");
     await v.run(f);
 
-    t.deepEqual(toJS(f.errors), ["foo", "bar", "fooAsync", "barAsync"]);
+    t.deepEqual(toJS(v.errors), ["foo", "bar", "fooAsync", "barAsync"]);
   });
 
   it("should bail on first error", async () => {
@@ -64,7 +64,7 @@ describe("Validator", () => {
     f.setValue("baz");
     await v.run(f);
 
-    t.deepEqual(toJS(f.errors), ["foo"]);
+    t.deepEqual(toJS(v.errors), ["foo"]);
 
     const v2 = new Validator<Field>({
       bailFirstError: true,
@@ -75,7 +75,7 @@ describe("Validator", () => {
     });
 
     await v2.run(f);
-    t.deepEqual(toJS(f.errors), ["fooAsync"]);
+    t.deepEqual(toJS(v2.errors), ["fooAsync"]);
   });
 
   it("should forward non-aborted errors", async () => {

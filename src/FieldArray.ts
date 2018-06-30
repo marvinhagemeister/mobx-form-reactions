@@ -5,17 +5,15 @@ import { Validator, IValidator } from "./Validator";
 
 export class FieldArray implements AbstractFormControl {
   @observable disabled: boolean;
-  @observable _validating: boolean = false;
   @observable fields: AbstractFormControl[] = [];
-  @observable errors: string[] = [];
   validator: IValidator<FieldArray>;
 
   constructor(
     fields: AbstractFormControl[] = [],
     {
       disabled = false,
-      validator = new Validator()
-    }: ControlOptions<FieldArray> = {}
+      validator = new Validator(),
+    }: ControlOptions<FieldArray> = {},
   ) {
     this.disabled = disabled;
     this.validator = validator;
@@ -34,8 +32,9 @@ export class FieldArray implements AbstractFormControl {
 
   @computed
   get status() {
-    if (this.errors.length > 0) return FieldStatus.INVALID;
-    if (this._validating) return FieldStatus.PENDING;
+    const { errors, pending } = this.validator;
+    if (errors.length > 0) return FieldStatus.INVALID;
+    if (pending) return FieldStatus.PENDING;
     return getStatus(this.fields);
   }
 
@@ -59,12 +58,9 @@ export class FieldArray implements AbstractFormControl {
 
   @action.bound
   validate(): Promise<void> {
-    this._validating = true;
-
-    const p = Promise.all(this.fields.map(field => field.validate()));
-    return p.then(() => this.validator.run(this)).then(() => {
-      this._validating = false;
-    });
+    return Promise.all(this.fields.map(field => field.validate())).then(() =>
+      this.validator.run(this),
+    );
   }
 
   @action.bound
@@ -85,8 +81,7 @@ export class FieldArray implements AbstractFormControl {
   @action.bound
   reset() {
     this.fields.forEach(field => field.reset());
-    this.errors = [];
-    this._validating = false;
+    this.validator.reset();
     return this.validate().then(() => undefined);
   }
 }
