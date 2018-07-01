@@ -1,6 +1,6 @@
 {
   "name": "@marvinh/mobx-form-reactions",
-  "version": "4.1.1",
+  "version": "5.0.0",
   "description": "MobX form state classes",
   "main": "dist/cjs/index.js",
   "module": "dist/es/index.js",

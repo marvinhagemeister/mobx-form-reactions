@@ -1,6 +1,6 @@
 # Changelog
 
-## next
+## 5.0.0
 
 This release moves all validation logic into the `Validator` class. This was
 something that was bugging me for a while, and didn't have time to think
