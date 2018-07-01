@@ -17,21 +17,19 @@ yarn add @marvinh/mobx-form-reactions
 
 There are 3 basic modesl which are the building blocks for any form:
 
-* `Field` - A simple input field
-* `FormGroup` - A group of fields stored as an object
-* `FieldArray` - Holds a list of fields/groups where the order is important or children can be dynamically added/removed.
+- `Field` - A simple input field
+- `FormGroup` - A group of fields stored as an object
+- `FieldArray` - Holds a list of fields/groups where the order is important or children can be dynamically added/removed.
 
 Additional classes:
 
-* `BooleanField`- Abstraction for toggles/checkboxes
+- `BooleanField`- Abstraction for toggles/checkboxes
 
 ### API
 
 ```ts
 // Each class implements this interface
 interface AbstractControl {
-  /** List of error strings */
-  errors: string[];
   /**
    * Incremented each time a field is changed. Useful for dirty-checking or
    * syncing requirements
@@ -151,8 +149,8 @@ console.log(name.value); // Logs: "John Doe"
 
 ### Examples
 
-* [Form control dependencies](examples/)
-* [Form validation dependencies](examples/)
+- [Form control dependencies](examples/)
+- [Form validation dependencies](examples/)
 
 ### FieldArrays (dynamic fields)
 
