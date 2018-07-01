@@ -1,8 +1,8 @@
 import * as t from "assert";
-import { toJS, configure } from "mobx";
+import { configure } from "mobx";
 import { FieldStatus } from "../shapes";
 import { Field } from "../Field";
-import { SyncValidateFn, AsyncValidateFn, Validator } from "..";
+import { AsyncValidateFn, Validator } from "..";
 import { isHello, delay } from "./helpers";
 
 configure({ enforceActions: true });

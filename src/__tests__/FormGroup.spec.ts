@@ -71,7 +71,7 @@ describe("FormGroup", () => {
 
     fb.setValue("yes");
 
-    const valid = await form.validate();
+    await form.validate();
     t.equal(form.status, FieldStatus.INVALID);
   });
 
