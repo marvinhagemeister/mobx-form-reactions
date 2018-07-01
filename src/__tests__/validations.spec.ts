@@ -6,7 +6,7 @@ describe("required", () => {
     t.equal(required(""), "required");
     t.equal(required("  "), "required");
     t.equal(required(null), "required");
-    t.equal(required(undefined), "required");
+    t.equal(required(undefined as any), "required");
     t.equal(required([] as any), "required");
     t.equal(required({} as any), "required");
   });
@@ -49,8 +49,8 @@ describe("maxLength", () => {
 describe("pattern", () => {
   it("should fail if value is > max", () => {
     t.equal(pattern(/foo/g)("aaa"), "pattern");
-    t.equal(pattern(/foo/g)(null), "pattern");
-    t.equal(pattern(/foo/g)(undefined), "pattern");
+    t.equal(pattern(/foo/g)(null as any), "pattern");
+    t.equal(pattern(/foo/g)(undefined as any), "pattern");
   });
 
   it("should succeed if value is <= max", () => {

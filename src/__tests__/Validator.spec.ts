@@ -12,7 +12,7 @@ const fn = (spy: sinon.SinonSpy) => async (field: Field) => {
 
 describe("Validator", () => {
   it("should instantiate with no options", () => {
-    const v = new Validator();
+    return new Validator();
   });
 
   it("should support async cancellation", async () => {

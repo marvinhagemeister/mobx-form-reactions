@@ -1,5 +1,5 @@
 import * as t from "assert";
-import { toJS, configure } from "mobx";
+import { configure } from "mobx";
 import { asyncIsHello, isHello } from "./helpers";
 import { FieldArray } from "../FieldArray";
 import { FormGroup } from "../FormGroup";
